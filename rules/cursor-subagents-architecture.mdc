@@ -1,0 +1,110 @@
+---
+description: Architecture and routing guide for Cursor-native subagents (~/.cursor/agents/) vs Claude-compatible agents (~/.claude/agents/). Governs model assignment, readonly, is_background, and when to use each tier.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Cursor Subagent Architecture
+
+## Two-tier agent system
+
+This setup uses two agent directories that serve different purposes:
+
+| Directory | Scope | Format | Special fields |
+| --------- | ----- | ------ | -------------- |
+| `~/.cursor/agents/` | Cursor-native (preferred) | YAML frontmatter + prompt | `model`, `readonly`, `is_background` |
+| `~/.claude/agents/` | Claude Code compatible | YAML frontmatter + prompt | `model` only (Claude aliases) |
+
+**Precedence:** When both directories contain an agent with the same name, `~/.cursor/agents/` wins.
+
+## When to use each directory
+
+### Use `~/.cursor/agents/` (Cursor-native) for:
+- Agents that benefit from `model: fast` (lightweight tasks)
+- Agents that are read-only reviewers (`readonly: true`)
+- Agents that should run as background tasks (`is_background: true`)
+- Any new agent you are creating for Cursor use
+
+### Use `~/.claude/agents/` for:
+- Agents that need to work in Claude Code CLI workflows
+- Agents in the existing 87-agent Claude-compatible library
+- Cross-tool compatibility requirements
+
+## YAML frontmatter format (Cursor-native)
+
+```markdown
+---
+name: agent-name
+description: When to use this agent and what it does. Write this as if Agent is reading it to decide when to delegate. Be specific — vague descriptions prevent delegation.
+model: fast | inherit | <specific-model-id>
+readonly: true | false
+is_background: false | true
+---
+
+Agent prompt body here.
+```
+
+## Model assignment policy
+
+| Agent type | model value | Rationale |
+| ---------- | ----------- | --------- |
+| Recon / explore / search | `fast` | Read-only, speed > depth |
+| Review / audit (readonly) | `inherit` | Needs parent model quality |
+| Build / implement | `inherit` | Complex reasoning required |
+| Verification / validation | `fast` | Structured, bounded task |
+| Test runner | `fast` | Mechanical, not analytical |
+| Security audits | `inherit` | Risk-sensitive, needs depth |
+| Architecture review | `inherit` | Complex tradeoffs |
+
+## Description writing guide
+
+The `description` field is the primary signal Agent uses to decide when to delegate. Write it as:
+- "Use when [specific situation]..."
+- "Use proactively for [recurring trigger]..."
+- Include concrete trigger phrases users might say
+
+**Bad:** "A general coding helper"
+**Good:** "Use when implementing backend endpoints, services, database queries, or async jobs. Use proactively when the task involves server-side code. Primary agent for all backend BUILD phase work."
+
+## Readonly policy
+
+Set `readonly: true` for agents that should NEVER modify files:
+- Code reviewers
+- Security auditors
+- Architect reviewers
+- Verifiers
+- Research/exploration agents
+
+Set `readonly: false` (default) for agents that implement:
+- Developers (frontend, backend, fullstack)
+- Test writers
+- DevOps implementers
+- Documentation engineers
+
+## Background execution
+
+Use `is_background: true` sparingly, only when:
+- The agent's output is not needed immediately by the parent
+- The task is long-running and the parent can continue without it
+- The result will be read from disk by the parent later
+
+Do NOT use background for:
+- Agents whose output feeds the next phase
+- Security reviews before BUILD
+- Any critic/review phase agent
+
+## Routing in ks-conductor
+
+When the `Task` tool `model` parameter is used, it overrides the frontmatter `model`. Use the Task parameter when:
+- You need to force `fast` for a cheap parallel recon fan-out
+- You need a stronger model for a single high-stakes branch
+- The frontmatter specifies something that does not match current needs
+
+## Anti-patterns
+
+- Do not create dozens of vague agents with generic descriptions
+- Do not duplicate agents across both directories unnecessarily
+- Do not use `is_background: true` for agents that gate the next phase
+- Do not assign `model: fast` to security or architecture agents
+- Do not set `readonly: true` for agents that need to write files to do their job

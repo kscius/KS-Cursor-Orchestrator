@@ -1,0 +1,14 @@
+---
+description: Gemini and provider-specific LLM integration discipline (scoped)
+globs:
+  - "**/*gemini*"
+  - "**/*prompt*"
+  - "**/*llm*"
+alwaysApply: false
+---
+
+# Gemini / provider-specific LLM
+
+- Respect the SDK and config patterns already in the repo; do not assume OpenAI shapes map 1:1 to Gemini.
+- Make output structure explicit when parsers depend on it; treat model and format changes as behavior changes.
+- Validate prompt + parser + consumer together when output is consumed programmatically.

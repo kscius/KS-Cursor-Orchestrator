@@ -1,0 +1,47 @@
+---
+description: cursor10x-mcp memory tools — session init, milestones, decisions, episodes, and files tracking across multi-session or multi-phase tasks
+globs:
+alwaysApply: false
+---
+
+# Cursor10x-mcp — Memory and context
+
+The **cursor10x-mcp** MCP exposes a memory system (short-term, long-term, episodic, and vectors). Use its tools to keep context across sessions and tasks.
+
+## When to use each tool
+
+### Context and conversation startup
+- **getComprehensiveContext**: When starting a complex task or when you need to “remember” the project. Optional `query` for semantic search (e.g. “auth”, “API payments”).
+- **initConversation**: When starting an important conversation: stores the user message, generates a status banner, and retrieves context in one call.
+- **generateBanner**: To get a summary of memory system state (stats and status).
+- **checkHealth**: If something fails or to verify the MCP and database respond.
+
+### Long-term memory (requirements, milestones, decisions)
+- **storeRequirement**: When the user states a requirement or acceptance criterion (title, content, importance: low/medium/high, optional metadata).
+- **storeMilestone**: When a milestone completes (title, description, importance, optional metadata).
+- **storeDecision**: When a design or architecture decision is made (title, content, optional reasoning, importance, optional metadata).
+
+### Episodic memory (actions)
+- **recordEpisode**: To log a relevant action (actor: user/assistant/system, action, content, importance, optional context).
+- **getRecentEpisodes**: To review recent work (limit, optional context).
+
+### Short-term memory (messages and files)
+- **storeUserMessage** / **storeAssistantMessage**: To persist important session messages (content, importance, optional metadata).
+- **getRecentMessages**: To retrieve recent messages (limit, filter by importance).
+- **getActiveFiles**: To see which files are “active” in the session (limit).
+- **trackActiveFile**: When the user opens, edits, or closes a relevant file (filename, action: open/edit/close, optional metadata).
+
+### Conversation closure
+- **endConversation**: When closing a conversation explicitly: stores the assistant’s final message, a milestone, and an episode in one call (content, milestone_title, milestone_description, importance, optional metadata).
+
+### Vectors (advanced)
+- **manageVector**: Embedding operations: store, search, update, delete (operation, contentId, contentType, vector, vectorId, limit, threshold, metadata).
+- **diagnoseVectors**: Diagnose vector storage if there are issues.
+- **getMemoryStats**: Memory system statistics (counts, status).
+
+## Usage rules
+- Do not call **storeUserMessage** / **storeAssistantMessage** on every message; use them for messages that should persist or be retrieved later.
+- Use **importance** (low/medium/high) consistently: high for critical decisions and requirements, low for noise.
+- **initConversation** and **endConversation** are shortcuts that combine several operations; prefer them at the start/end of clear flows instead of calling each tool separately.
+- For work spanning many sessions, use **getComprehensiveContext** when resuming and **storeMilestone** / **storeDecision** when there is progress or a decision.
+- **trackActiveFile** is optional; use it when the “active file” matters for the task (e.g. refactors, reviewing a module).

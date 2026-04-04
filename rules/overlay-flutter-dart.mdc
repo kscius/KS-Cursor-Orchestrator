@@ -1,0 +1,12 @@
+---
+description: Flutter and Dart conventions (scoped)
+globs:
+  - "**/*.dart"
+alwaysApply: false
+---
+
+# Flutter / Dart
+
+- PascalCase classes; camelCase members; snake_case file names.
+- Preserve existing architecture, routing, DI, and state management.
+- Favor shallow widget trees and reusable components; platform-consistent UX.

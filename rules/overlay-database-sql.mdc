@@ -1,0 +1,17 @@
+---
+description: Database, SQL, migrations, Prisma (scoped)
+globs:
+  - "**/*.sql"
+  - "**/*migration*"
+  - "**/*migrations*"
+  - "**/db/**/*"
+  - "**/database/**/*"
+  - "**/prisma/**/*"
+alwaysApply: false
+---
+
+# Database / SQL
+
+- Parameterized queries; migrations for schema changes; no ad hoc production mutation.
+- Explicit constraints and indexes when justified; avoid unbounded reads; prefer pagination.
+- Preserve transactional correctness and N+1 awareness where relevant.

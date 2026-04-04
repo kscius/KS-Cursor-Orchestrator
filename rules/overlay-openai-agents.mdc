@@ -1,0 +1,17 @@
+---
+description: OpenAI agents, tools, assistants, workflows (scoped)
+globs:
+  - "**/*agent*"
+  - "**/*openai*"
+  - "**/*tool*"
+  - "**/*assistant*"
+  - "**/*workflow*"
+alwaysApply: false
+---
+
+# OpenAI agents / orchestration
+
+- Separate system, developer, tool, and task instructions intentionally.
+- Define tools narrowly with bounded arguments and predictable outputs; avoid overlapping tools.
+- Keep context relevant and bounded; prefer explicit handoffs when multiple agents or tools interact.
+- Treat instruction, routing, and schema changes as behavior changes requiring targeted validation; prefer structured outputs when downstream depends on them.

@@ -1,0 +1,17 @@
+---
+description: Ruby, Rails, Chatwoot-oriented conventions (scoped)
+globs:
+  - "**/*.rb"
+  - "**/Gemfile"
+  - "**/Gemfile.lock"
+  - "**/config/routes.rb"
+  - "**/db/migrate/**/*"
+alwaysApply: false
+---
+
+# Ruby / Rails / Chatwoot
+
+- Follow Rails and project conventions; prefer the layer the repo already uses (model, service, job, controller).
+- Keep validations, callbacks, and associations intentional; prefer clear service boundaries over callback-heavy hidden behavior.
+- Use background jobs for async work the repo already treats asynchronously; keep payloads idempotent when retries matter.
+- Respect Chatwoot-style boundaries for inbox, conversation, message, and automation flows unless the repo explicitly changes them.

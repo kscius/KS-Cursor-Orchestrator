@@ -1,0 +1,160 @@
+---
+description: Orchestration protocol — brainstorming gates, SequentialThinking triggers, MCP lifecycle, and Task model routing for multi-phase workflows
+globs:
+alwaysApply: true
+---
+
+# Orchestration protocol
+
+This rule binds how the parent agent uses **skills**, **Task/subagents**, and **MCPs** during multi-phase workflows (`/ks-conductor`, `/scout`, `/intake`, Plan Mode with an execution pack). It does not replace stack- or project-specific rules; it sequences **when** certain tools must run.
+
+---
+
+## Subagent model field (Cursor 2026)
+
+### Current behavior (verified March 2026)
+
+Cursor **does honor** the `model:` field in subagent YAML frontmatter. Valid values:
+
+| Value | Behavior |
+| --- | --- |
+| `inherit` | Uses the same model as the parent agent (default if omitted) |
+| `fast` | Uses a smaller, faster model — good for search, verification, repetitive tasks |
+| specific model ID | e.g. `claude-opus-4-6` — uses that exact model |
+
+**Exceptions** where Cursor overrides the configured model: team admin block, Max Mode not enabled, or model not available on current plan.
+
+**Two-tier agent system (April 2026):**
+- `~/.cursor/agents/` — Cursor-native subagents (highest precedence). Supports `model: fast`, `readonly: true`, `is_background: true`. Preferred for new agents.
+- `~/.claude/agents/` — Claude Code compatible agents (87 agents). Work in Cursor but don't support Cursor-specific fields. Use Claude aliases (`haiku`, `sonnet`, `opus`) which Cursor maps to compatible models.
+- Full guidance: `~/.cursor/rules/cursor-subagents-architecture.mdc`
+
+### Guidance for the parent agent (Task tool)
+
+The Task tool `model` parameter overrides frontmatter. Use it when:
+
+1. An explicit model upgrade is needed for a single branch (e.g. security review, architectural decisions).
+2. Forcing `fast` for a parallel recon fan-out regardless of what the subagent file specifies.
+3. Only one alias (`fast`) is available — still use Task for isolation and specialized prompts.
+
+**Authoring new agents:** In `cursor-subagents/` (Cursor-native), prefer `inherit` for implementation agents and `fast` for search/verify/repetitive agents. Always add `readonly: true` to agents that should never write files (reviewers, auditors, analysts).
+
+---
+
+## Brainstorming — mandatory gate
+
+**Mandatory — read and follow the `brainstorming` skill** before heavy reconnaissance or implementation when **any** of these hold:
+
+- The ask is **vague** (“improve X”, “make it better”, “add something for Y”).
+- The ask is **creative or product-shaped** (new feature direction, UX concept, greenfield behavior without crisp acceptance criteria).
+- The ask is **open-ended** and could be interpreted as multiple different engineering tasks.
+
+**Skip brainstorming** when the task is already a **precise, bounded** engineering request (exact file, exact bug repro, exact API change with stated contract, one-line fix scope).
+
+**Related:** For vague but engineering-oriented asks, use **`requirements-gathering`** after or instead of brainstorming to produce acceptance criteria and scope boundaries. For “what to build” / strategy, route to **`game-changing-features`** or **`product-manager`** when appropriate.
+
+---
+
+## Sequential Thinking MCP — mandatory triggers
+
+Invoke **`user-Sequentialthinking`** when **any** of the following is true:
+
+1. **Classification ambiguity** — e.g. SIMPLE vs STANDARD (or STANDARD vs COMPLEX) is not clear from repo evidence.
+2. **Multiple valid approaches** after SCOUT — no single obvious path from the codebase alone.
+3. **CRITIC verdict is CAUTION** — reason through gaps before revising plan or building.
+4. **Fix loop** — iteration **≥ 2** without clear progress toward green validation.
+5. **Confidence after SCOUT is MEDIUM** (roughly 70–89%) — surface assumptions and verification before large implementation.
+
+**Optional (judgment):** LOW confidence investigation; CRITIC **REWORK** with many moving parts.
+
+**Do not** invoke for: clearly SIMPLE tasks with SCOUT confirming one obvious path, or when repo evidence **uniquely** determines the approach.
+
+---
+
+## Context MCPs — lifecycle (cursor10x + devcontext)
+
+Use **`user-cursor10x-mcp`** and **`user-devcontext`** as **lifecycle-bound** tools, not ad hoc noise.
+
+### Session / run start (e.g. Phase 0 INTAKE)
+
+- **cursor10x:** `getComprehensiveContext` (optional: `query`, recent episodes/messages) for repo or task theme continuity.
+- **devcontext:** `initialize_conversation_context` with the task as `initialQuery` and repo focus when applicable.
+- **Reuse** the same `conversationId` from `initialize_conversation_context` for `update_conversation_context`, `retrieve_relevant_context`, `record_milestone_context`, and `finalize_conversation_context`.
+
+### Phase boundaries
+
+After **INTAKE, SCOUT, PLAN, CRITIC, BUILD, FIX LOOP** (or equivalent milestones), persist brief durable state:
+
+- **cursor10x:** `storeMilestone`, `storeDecision`, `recordEpisode`, or `storeAssistantMessage` as appropriate (decisions, blockers, validated commands, file lists).
+- **devcontext:** `update_conversation_context` when messages or code changes materially shift project state; `retrieve_relevant_context` when a concrete question needs prior context.
+
+### Session / run end
+
+- **devcontext:** `finalize_conversation_context` with appropriate `outcome` (`completed`, `paused`, `abandoned`, `reference_only`).
+- **cursor10x:** final milestone and decisions that should survive for future sessions (`endConversation` is acceptable as a combined close when that matches your flow).
+
+**Proportionality:** For trivial single-file tasks, skip heavy MCP churn; still prefer one lightweight continuity call if the user is mid-project.
+
+**Details:** Parameter-level guidance for each MCP lives in `devcontext-mcp.mdc` and `cursor10x-mcp.mdc`.
+
+---
+
+## Phase gates (optional skill)
+
+When the **`sdlc-checkpoint`** skill is available, use it at **orchestrator phase boundaries** to verify expected artifacts exist before advancing (intake brief, scout classification, execution pack, critic verdict, validation evidence).
+
+---
+
+## Model routing (parent / Task tool)
+
+When the **Task** tool exposes a `model` parameter (or equivalent), prefer this routing. **Subagent YAML `model:` is not authoritative** (see above).
+
+| Task type | Model tier | Reason |
+| --------- | ---------- | ------ |
+| Explore / recon subagents | **fast** | Read-only; speed matters |
+| Build subagents (clear spec) | **fast** | Implementation with bounded scope |
+| Documentation / boilerplate | **fast** | Lower risk |
+| Security review | **strongest available** | Risk-sensitive |
+| Architect / staff-level review | **strongest available** | Complex tradeoffs |
+| Fix-loop iteration **3+** | **strongest available** | Deeper reasoning when stuck |
+
+If only one alias is offered, still delegate for isolation; accept product constraints.
+
+---
+
+## Async subagents (Cursor 2026)
+
+Subagents can now run **asynchronously** — the parent continues while the subagent works in the background.
+
+- Use `run_in_background: true` in the Task tool when: the subagent's output is not needed immediately, and parallel progress on a different workstream is possible.
+- Always synchronize before a phase that **consumes** the subagent's output (e.g. PLAN needs SCOUT results before generating an execution pack).
+- Background subagents are best for: long SCOUT fan-outs, parallel web research, slow code review passes.
+- Background subagents are **not** appropriate for: sequential phases, writes to the same files, or any step where the parent must see results before proceeding.
+
+## Cursor Automations (persistent background agents)
+
+When the task involves recurring triggers (schedule, GitHub event, Slack message, Linear issue, PagerDuty alert), use the **`/automations-spec`** command to design the agent — not `/ks-conductor`.
+
+Automations are distinct from slash commands:
+- They run without the user present, in Cursor cloud VMs
+- They persist across sessions and can improve via memory
+- They require explicit trigger configuration at `cursor.com/automations`
+- Use `user-cursor10x-mcp` for run-to-run memory when the automation should learn from prior runs
+
+**When to route to `/automations-spec`:** the user mentions "always-on", "trigger when", "every morning", "on PR", "when Slack", or any recurring automated action.
+
+## Spec-driven development (pre-implementation gate)
+
+For STANDARD or COMPLEX tasks where the implementation contract is not yet precise, use the **`spec-driven-development`** skill **before** BUILD. This produces typed signatures, behavioral contracts, and example pairs that the executor and reviewer validate against.
+
+Route to `spec-driven-development` when: feature has ambiguous behavior at boundaries, API contract is new, multiple callers will depend on the interface, or the CRITIC returned CAUTION on precision.
+
+## MCP troubleshooting
+
+When an MCP is unavailable during a run, use the **`mcp-health-check`** skill to diagnose before declaring BLOCKED. Document the fallback tool or approach and continue where possible.
+
+---
+
+## Precedence
+
+When this protocol conflicts with **safety or correctness**, safety and correctness win. When it conflicts with **repo-verified fact**, trust the repo. This protocol governs **orchestration timing**, not domain implementation.

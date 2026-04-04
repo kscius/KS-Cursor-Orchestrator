@@ -1,0 +1,33 @@
+---
+description: Unified React + Next.js + frontend composition (merged React Overlay + Frontend React/Next overlays)
+globs:
+  - "**/*.{tsx,jsx}"
+  - "**/app/**/*.{ts,tsx,js,jsx}"
+  - "**/pages/**/*.{ts,tsx,js,jsx}"
+  - "**/components/**/*.{tsx,jsx}"
+alwaysApply: false
+---
+
+# Frontend — React / Next.js
+
+Activate when editing React or Next.js UI code.
+
+## Components
+
+- Prefer small, focused components; use `handle*` for event handlers; extract hooks or subcomponents when complexity grows.
+
+## State
+
+- Avoid unnecessary `useEffect`; prefer derived state; keep local state minimal.
+
+## Next.js (App Router)
+
+- Prefer Server Components by default; mark `"use client"` only when needed; keep secrets and sensitive env on the server.
+
+## UI quality
+
+- Design loading, error, empty, and disabled states; preserve accessibility (semantics, labels, keyboard, focus).
+
+## Styling
+
+- Prefer Tailwind when the project uses it.

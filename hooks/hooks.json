@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node ./hooks/session-context.js",
+        "timeout": 10
+      },
+      {
+        "command": "node ./hooks/context-injector.js",
+        "timeout": 8
+      },
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "Session starting. Orientation only — do not make changes: (1) Check ~/.cursor/plans/ for any in-progress workflow_state.md, execution packs, or scout artifacts from prior sessions. If found, surface the phase and pending tasks to resume. (2) If cursor10x-mcp is available, call getComprehensiveContext to surface relevant project memory and prior decisions. (3) Note recently edited files to anticipate the user's likely next request. Stay ready to continue mid-task work or start fresh.",
+        "timeout": 15
+      }
+    ],
+
+    "afterAgentResponse": [
+      {
+        "command": "node ./hooks/after-agent-response.js",
+        "timeout": 8
+      }
+    ],
+
+    "afterAgentThought": [
+      {
+        "command": "node ./hooks/thought-logger.js",
+        "timeout": 5
+      }
+    ],
+
+    "sessionEnd": [
+      {
+        "command": "node ./hooks/session-end.js",
+        "timeout": 8
+      },
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "The session is ending. If meaningful project work occurred, persist durable state: call cursor10x-mcp storeMilestone for completed milestones, storeDecision for key decisions, and devcontext finalize_conversation_context with the appropriate outcome. Skip MCP calls if no project work occurred.",
+        "timeout": 15
+      }
+    ],
+
+    "beforeSubmitPrompt": [
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "Before acting on the user's prompt: (1) Explicit request vs invented scope — default to the smallest coherent diff. (2) Classify: SIMPLE (execute), STANDARD (short plan), or COMPLEX (full plan + critic when justified). (3) Vagueness: use the full conversation as ground truth. Short follow-ups (e.g. retry, confirmation, status updates like \"I updated it — try again\", \"sigue\", \"ok\") are NOT vague when they continue an established task — proceed without extra brainstorming. Only treat as vague/creative when the goal is still unclear after prior turns, or it is a new open-ended topic. (4) Workflow when it fits: feature, bugfix, refactor, security, migration, docs, performance, infrastructure. Prompt: $ARGUMENTS",
+        "timeout": 10
+      }
+    ],
+
+    "beforeShellExecution": [
+      {
+        "command": "node ./hooks/block-dangerous-shell.js",
+        "timeout": 10
+      },
+      {
+        "command": "node ./hooks/protect-branch.js",
+        "matcher": "git"
+      },
+      {
+        "type": "prompt",
+        "prompt": "Is this deployment, publish, or network-modifying command safe? Only allow if explicitly requested by the user and does not target production without approval. Command: $ARGUMENTS",
+        "timeout": 10,
+        "matcher": "npm publish|npx.*deploy|docker push|kubectl apply|kubectl delete|terraform apply|terraform destroy|fly deploy|vercel.*--prod|heroku push|ansible-playbook|aws s3 rm|aws s3 delete|gsutil rm|az storage"
+      }
+    ],
+
+    "afterShellExecution": [
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "Shell command completed. Assess the result: (1) Did it succeed or fail? If it failed, diagnose the root cause before retrying — avoid speculative re-runs. (2) If it produced structured output (test results, lint errors, build artifacts, type errors), incorporate that output into the current task — do not ignore error lines. (3) If validation output indicates failures, do not mark the task complete. (4) If this was a migration, deploy, or destructive command, verify the expected state change occurred. Command and result: $ARGUMENTS",
+        "timeout": 10,
+        "matcher": "npm|yarn|pnpm|jest|vitest|pytest|rspec|cargo|go test|make|tsc|eslint|prettier|docker|git push|migrate|prisma"
+      }
+    ],
+
+    "beforeReadFile": [
+      {
+        "command": "node ./hooks/block-secret-reads.js",
+        "timeout": 5,
+        "failClosed": false
+      }
+    ],
+
+    "beforeTabFileRead": [
+      {
+        "command": "node ./hooks/block-secret-reads.js",
+        "timeout": 5,
+        "failClosed": false
+      }
+    ],
+
+    "afterFileEdit": [
+      {
+        "command": "node ./hooks/edit-tracker.js",
+        "timeout": 5
+      },
+      {
+        "command": "node ./hooks/post-edit-quality.js",
+        "timeout": 10
+      },
+      {
+        "command": "node ./hooks/comment-checker.js",
+        "timeout": 8
+      },
+      {
+        "command": "node ./hooks/dependency-guard.js",
+        "timeout": 10,
+        "matcher": "\\.(ts|tsx|js|jsx|mjs|cjs|py)$"
+      },
+      {
+        "command": "node ./hooks/auto-format.js",
+        "timeout": 15
+      },
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "A critical file was just edited. Verify: (1) the change is within requested scope, (2) no secrets or credentials were introduced, (3) existing behavior outside the change scope was preserved. Edit: $ARGUMENTS",
+        "timeout": 10,
+        "matcher": "migration|auth|security|config|schema|\\.env"
+      }
+    ],
+
+    "afterTabFileEdit": [
+      {
+        "command": "node ./hooks/post-edit-quality.js",
+        "timeout": 10
+      },
+      {
+        "type": "prompt",
+        "prompt": "A file was manually edited in the editor tab. If relevant to the current task: (1) Verify the change aligns with the current plan — flag scope creep or unintended modifications. (2) Check if downstream files require corresponding updates (type definitions, tests, OpenAPI specs, docs). (3) If the file is in a sensitive area (auth, schema, config, migrations), apply the same checks as afterFileEdit critical paths: no secrets introduced, behavior outside scope preserved. File: $ARGUMENTS",
+        "timeout": 10
+      }
+    ],
+
+    "beforeMCPExecution": [
+      {
+        "command": "node ./hooks/validate-mcp.js",
+        "timeout": 10,
+        "failClosed": true
+      }
+    ],
+
+    "afterMCPExecution": [
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      }
+    ],
+
+    "preToolUse": [
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5,
+        "matcher": "Shell|Write|Delete"
+      },
+      {
+        "type": "prompt",
+        "prompt": "About to use a Shell, Write, or Delete tool. Default ALLOW when the action matches the user's request or an ongoing task in the conversation (short follow-ups inherit prior intent). (1) Shell — command must be justified by repo evidence (package.json, Makefile, README, CI); never invent commands. (2) Write — do not refuse for large patches, many hunks, or multi-step apply alone; those are normal when implementing what was asked. Only pause or escalate if the edit clearly exceeds agreed scope with no basis in the thread. (3) Delete — treat irreversible deletes carefully; need clear user intent. Never block routine, user-requested edits over subjective scope or diff size. Tool and arguments: $ARGUMENTS",
+        "timeout": 10,
+        "matcher": "Shell|Write|Delete"
+      }
+    ],
+
+    "postToolUse": [
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      }
+    ],
+
+    "postToolUseFailure": [
+      {
+        "command": "node ./hooks/tool-failure-tracker.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "A tool execution failed. Diagnose: (1) Is this transient (network timeout, rate limit) — retry once with backoff. (2) Is this structural (wrong path, missing dependency, bad args) — fix root cause before retrying. (3) Does this block the current task — surface the specific error to the user clearly. Failed tool: $ARGUMENTS",
+        "timeout": 10
+      }
+    ],
+
+    "subagentStart": [
+      {
+        "command": "node ./hooks/subagent-guard.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "Review this subagent delegation. Is the task well-scoped with clear boundaries? Is delegation justified (specialized expertise, parallelizable, or high-risk)? Does it avoid redundant work the parent could do directly? Delegation: $ARGUMENTS",
+        "timeout": 10,
+        "matcher": "security-auditor|security-engineer|database-administrator|database-optimizer|penetration-tester|compliance-auditor|devops-engineer|terraform-engineer"
+      }
+    ],
+
+    "subagentStop": [
+      {
+        "command": "node ./hooks/subagent-complete.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "A subagent has completed. Before consuming its output: (1) Verify the result matches the delegated task — check for scope drift or hallucinated facts. (2) If the result is a critic verdict (APPROVED/CAUTION/REWORK), apply it correctly: REWORK returns to PLAN, CAUTION requires gap documentation before BUILD. (3) If the result is implementation code, validate it against execution pack acceptance criteria before merging. (4) Persist any durable decisions in cursor10x-mcp. Subagent: $ARGUMENTS",
+        "timeout": 10
+      }
+    ],
+
+    "stop": [
+      {
+        "command": "node ./hooks/stop-summary.js",
+        "timeout": 10
+      },
+      {
+        "command": "node ./hooks/verifier.js",
+        "timeout": 90
+      },
+      {
+        "command": "node ./hooks/boulder-check.js",
+        "timeout": 15
+      },
+      {
+        "command": "node ./hooks/audit-log.js",
+        "timeout": 5
+      },
+      {
+        "type": "prompt",
+        "prompt": "Agent turn ending. Self-validate before closing: (1) Were all claimed changes actually made — or only stated? (2) Were claimed validations actually run, or were they skipped without stating why? (3) Were any commands invented rather than derived from repo evidence? (4) Is the task genuinely complete, or is there unresolved work to surface? (5) If meaningful project work occurred, persist memory: cursor10x-mcp storeMilestone + devcontext update_conversation_context.",
+        "timeout": 15
+      }
+    ],
+
+    "preCompact": [
+      {
+        "command": "node ./hooks/precompact-preserve.js",
+        "timeout": 15
+      },
+      {
+        "type": "prompt",
+        "prompt": "Context compaction is about to occur. Before context is trimmed: (1) Write a workflow_state.md snapshot to ~/.cursor/plans/ capturing current phase, completed tasks, pending tasks, and key decisions so the task survives context loss. (2) Store critical facts in cursor10x-mcp via storeMilestone and storeDecision. (3) Note any in-progress implementation that must resume after compaction.",
+        "timeout": 15
+      }
+    ]
+  }
+}

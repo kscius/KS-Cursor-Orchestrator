@@ -1,0 +1,96 @@
+---
+description: Operating model — SDLC role topology, artifact contracts, phase gate conditions, resume paths, and escalation triggers
+globs:
+alwaysApply: true
+---
+
+# Operating model (software department runtime)
+
+Single source of truth for **who produces what**, **what must exist before advancing**, and **when to escalate**. Complements `sdlc-workflow.mdc` and `orchestration-protocol.mdc`.
+
+---
+
+## Artifact locations
+
+All paths are relative to the **active workspace root** (project repo). Use `.cursor/plans/` (create if missing).
+
+| Artifact | Filename pattern | Producer |
+| -------- | ---------------- | -------- |
+| Intake brief | `intake-brief-YYYY-MM-DD-<slug>.md` | `/ks-conductor` Phase 0 (INTAKE) end, or `/intake` when used standalone |
+| Scout artifact | `scout-YYYY-MM-DD-<slug>.md` | `/scout` (mandatory after reconnaissance) |
+| Execution pack | `execution-pack-YYYY-MM-DD-<slug>.md` | PLAN phase (STANDARD/COMPLEX) |
+| Critic verdict | `critic-verdict-YYYY-MM-DD-<slug>.md` | CRITIC phase (COMPLEX, or STANDARD when critic runs) |
+| Build report | `build-report-YYYY-MM-DD-<slug>.md` | BUILD phase end (or `/build-full` summary) |
+| Validation report | `validation-report-YYYY-MM-DD-<slug>.md` | VERIFY phase |
+| Integration report | `integration-report-YYYY-MM-DD-<slug>.md` | INTEGRATE when multi-stream |
+
+**Slug rules:** kebab-case from task summary (max ~48 chars), no path separators.
+
+**Resume:** Before running a pipeline step, check whether the expected artifact **already exists** for today’s run (or the latest matching file in `.cursor/plans/` if resuming). If present and still valid, **skip** regenerating that step unless the user invalidates it.
+
+---
+
+## Role topology (produce / consume)
+
+| Role | Produces | Consumes |
+| ---- | -------- | -------- |
+| **INTAKE** | `intake-brief-*.md` (requirements, acceptance criteria, open questions, `conversationId` if known) | TASK, memory (cursor10x), devcontext init |
+| **SCOUT** | `scout-*.md` (problem framing, arch map, files, constraints, unknowns, risk flags, `next_command`, confidence) | intake-brief or TASK |
+| **PLAN** | execution-pack (in chat + optional `execution-pack-*.md`) | scout artifact |
+| **CRITIC** | critic verdict (APPROVED / CAUTION / REWORK) + optional `critic-verdict-*.md` | execution-pack |
+| **BUILD** | code changes + build-report summary | execution-pack, critic verdict or explicit skip |
+| **VERIFY** | validation-report (GREEN / YELLOW / RED) | build-report / evidence |
+| **DOCUMENT** | updates under `/docs/` when contracts or ops change | build + validation summaries |
+| **CLOSE** | retrospective + cursor10x milestone + devcontext finalize | validation GREEN or explicit risk acknowledgment |
+
+---
+
+## Gate conditions (must pass to advance)
+
+| Advance from → to | Gate (must be true) |
+| ----------------- | ------------------- |
+| INTAKE → SCOUT | Task not blockably ambiguous; acceptance criteria or explicit scope boundaries written to intake-brief or chat |
+| SCOUT → PLAN | Classification known; `scout-*.md` on disk (or user-only workspace: full scout body in chat with stated exception) |
+| PLAN → CRITIC | EXECUTION PACK lists files, **repo-verified** validation commands, risks, what not to touch |
+| CRITIC → BUILD | Verdict **APPROVED**, or **CAUTION** with explicit user/self acknowledgment; **REWORK** → return to PLAN |
+| BUILD → VERIFY | Implementation complete per checklist; build-report captured |
+| VERIFY → DOCUMENT | validation-report exists; **GREEN** to close without risk note; **RED** → FIX LOOP before re-verify |
+| VERIFY → CLOSE | GREEN or explicit documented risk acceptance |
+
+---
+
+## Operating modes (dispatch)
+
+Classify the run into **one** mode; each maps to emphasis and entry helpers:
+
+| Mode | When | Pipeline emphasis | Typical delegated commands / skills |
+| ---- | ---- | ----------------- | ------------------------------------- |
+| **investigation** | Read-only, recon, options, research | INTAKE → SCOUT → (plan light) → CLOSE | `/scout`, `/intake`; subagents: explore, research-analyst |
+| **delivery** | Feature or standard change | Full pipeline with PLAN/BUILD/VERIFY | `/build-full`, `/feature-team` patterns; ship-feature |
+| **incident** | Bug, outage, regression | Triage → root cause → fix → verify | `/debug-team`, `/fix-loop`; debugger, error-detective |
+| **platform** | Refactor, migration, infra safety | PLAN + CRITIC + safety gates | `/refactor`, `/database-migration` patterns; refactoring-specialist, database-administrator |
+
+**workflow_type** (from scout / sdlc): feature, bugfix, refactor, security, migration, docs, performance, infrastructure, research, custom — must remain consistent with mode (e.g. bugfix ↔ incident).
+
+---
+
+## Escalation triggers
+
+- Any phase yields **BLOCKED** → surface to user immediately with concrete missing artifact or evidence.
+- **BUILD** / FIX LOOP: **3 iterations** without green validation → stop, document attempts, classify blocker (architectural / environmental / scope / dependency).
+- **CRITIC: REWORK** → do not BUILD; revise PLAN and execution pack.
+- **Unknown dependencies** discovered mid-BUILD → checkpoint, update scout-relevant notes, surface if blocking.
+- **Circuit breaker** (iterative failure): follow tiered limits in `/ks-conductor` (2 → re-analyze; 3 → stop and document; 5 → hard stop).
+
+---
+
+## Handoff format (phase boundary)
+
+When passing to the next phase, include:
+
+1. **Artifact paths** written under `.cursor/plans/`
+2. **Classification** (SIMPLE | STANDARD | COMPLEX) and **confidence** (HIGH | MEDIUM | LOW)
+3. **workflow_type** and **operating mode**
+4. **Next command** recommendation (`/ks-conductor` continue, `/plan`, `/build-full`, etc.)
+
+Use the **phase-handoff** skill for normalized templates when producing or validating handoffs.

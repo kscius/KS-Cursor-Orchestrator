@@ -1,0 +1,59 @@
+---
+description: Security discipline — mandatory checks for auth, sessions, payments, PII, secrets, permissions, and input validation. Glob-scoped to activate on security-sensitive file paths.
+globs:
+  - "**/auth/**/*"
+  - "**/authentication/**/*"
+  - "**/authorization/**/*"
+  - "**/*session*"
+  - "**/middleware/**/*"
+  - "**/payment*/**/*"
+  - "**/webhook*"
+  - "**/*token*"
+  - "**/*permission*"
+  - "**/*role*"
+  - "**/admin/**/*"
+  - "**/*secret*"
+  - "**/*credential*"
+alwaysApply: false
+---
+
+# Security-sensitive surfaces
+
+Activate when editing auth, sessions, payments, PII, secrets, or access-control code.
+
+## Input and boundary validation
+
+- Validate all untrusted inputs at the boundary; do not trust upstream systems or internal callers.
+- Use parameterized queries; never interpolate user data into SQL, shell commands, or templates.
+- Sanitize and encode outputs; treat user-controlled content as untrusted in rendered output.
+
+## Secrets and credentials
+
+- No secrets, tokens, or credentials in code, logs, traces, error messages, or client-visible responses.
+- Do not log sensitive values — not even partially (last 4 chars of a token is still a leak risk in some contexts).
+- Environment variables or secret managers only; no hardcoded values.
+
+## Auth / sessions
+
+- Verify authentication before authorization checks — never assume caller identity.
+- Regenerate session IDs after privilege changes (login, role escalation).
+- Use short-lived tokens with server-side invalidation support.
+- Validate token scope, audience (`aud`), and expiry on every request.
+
+## Payments / PCI
+
+- Tokenize card data; never log raw card numbers, CVVs, or PANs.
+- Validate amounts and quantities server-side; never trust client-sent prices.
+- Use idempotency keys on all mutation endpoints to prevent double-charges.
+
+## Permissions and access control
+
+- Apply least privilege — never widen access beyond what the current task requires.
+- Treat permission changes and access widening as breaking changes requiring explicit review.
+- Test both the authorized path and the unauthorized/forbidden path.
+
+## Change discipline
+
+- Auth, payment, and permission changes require explicit security review before merging.
+- Do not silently absorb errors on security-critical paths — log (without sensitive data) and surface failures explicitly.
+- Prefer reversible, auditable changes over silent defaults.

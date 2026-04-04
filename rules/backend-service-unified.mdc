@@ -1,0 +1,24 @@
+---
+description: Unified Node/backend service boundaries + API-style validation (merged Backend Service Boundaries + Node Backend overlays)
+globs:
+  - "**/*.{ts,js,mjs,cjs,py,php}"
+alwaysApply: false
+---
+
+# Backend service boundaries (Node + general)
+
+Apply only when the touched files are backend handlers, services, controllers, or API logic.
+
+## Boundaries
+
+- Separate transport (HTTP/RPC) from domain logic; keep auth, validation, and business rules in clear layers.
+- Validate request/response boundaries explicitly; prefer consistent shapes for similar endpoints.
+- Preserve async and module boundaries the repo already uses; avoid hidden cross-module side effects.
+
+## Node.js (when stack is Node)
+
+- Keep glue separate from core logic; avoid leaking secrets or env into client-visible errors.
+
+## Contracts (API / handlers)
+
+- Validate inputs and failure modes at boundaries; keep response shapes consistent for similar endpoints; avoid silent contract drift; update docs/schemas when contracts change.

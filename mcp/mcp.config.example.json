@@ -1,0 +1,206 @@
+{
+  "mcpServers": {
+    "Memory": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--network",
+        "none",
+        "--memory",
+        "512m",
+        "-v",
+        "<HOST_PATH_TO_MEMORY_DIR>:/data",
+        "-e",
+        "MEMORY_FILE_PATH=/data/memory.json",
+        "mcp/memory@sha256:db0c2db07a44b6797eba7a832b1bda142ffc899588aae82c92780cbb2252407f"
+      ],
+      "enabled": true,
+      "timeout": 30
+    },
+    "Sequential Thinking": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network",
+        "none",
+        "--memory",
+        "256m",
+        "mcp/sequentialthinking@sha256:cd3174b2ecf37738654cf7671fb1b719a225c40a78274817da00c4241f465e5f"
+      ],
+      "enabled": true,
+      "timeout": 120
+    },
+    "Interactive": {
+      "command": "npx",
+      "args": ["-y", "interactive-mcp@latest", "-t", "300"],
+      "enabled": true,
+      "timeout": 300
+    },
+    "duckduckgo": {
+      "command": "npx",
+      "args": ["-y", "duckduckgo-mcp-server@0.1.2"],
+      "enabled": true,
+      "timeout": 30
+    },
+    "time": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--network",
+        "none",
+        "--memory",
+        "128m",
+        "-e",
+        "TZ=America/Phoenix",
+        "mcp/time@sha256:9c46a918633fb474bf8035e3ee90ebac6bcf2b18ccb00679ac4c179cba0ebfcf"
+      ],
+      "enabled": true,
+      "timeout": 10
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "<YOUR_CONTEXT7_API_KEY>"
+      },
+      "enabled": true,
+      "timeout": 30
+    },
+    "semgrep": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--memory",
+        "1g",
+        "semgrep/semgrep@sha256:da5057ac7eea5374f4ceeaef09383d816c302e90a909ec7624a328a22b0aa4d7",
+        "semgrep",
+        "mcp",
+        "-t",
+        "stdio"
+      ],
+      "enabled": true,
+      "timeout": 120
+    },
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer <YOUR_GITHUB_COPILOT_OR_FINE_GRAINED_TOKEN>"
+      },
+      "enabled": true,
+      "timeout": 30
+    },
+    "linear": {
+      "url": "https://mcp.linear.app/mcp",
+      "enabled": false,
+      "timeout": 30
+    },
+    "cursor10x-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "TURSO_DATABASE_URL",
+        "-e",
+        "TURSO_AUTH_TOKEN",
+        "cursor10x-mcp-turso:local"
+      ],
+      "enabled": true,
+      "timeout": 60,
+      "env": {
+        "TURSO_DATABASE_URL": "<YOUR_TURSO_LIBSQL_URL>",
+        "TURSO_AUTH_TOKEN": "<YOUR_TURSO_AUTH_TOKEN>"
+      }
+    },
+    "devcontext": {
+      "command": "npx",
+      "args": ["-y", "devcontext@latest"],
+      "enabled": true,
+      "timeout": 30,
+      "env": {
+        "TURSO_DATABASE_URL": "<YOUR_DEVCONTEXT_TURSO_LIBSQL_URL>",
+        "TURSO_AUTH_TOKEN": "<YOUR_DEVCONTEXT_TURSO_AUTH_TOKEN>"
+      }
+    },
+    "stitch": {
+      "url": "https://stitch.googleapis.com/mcp",
+      "headers": {
+        "X-Goog-Api-Key": "<YOUR_GOOGLE_STITCH_OR_GEMINI_API_KEY>"
+      },
+      "enabled": true,
+      "timeout": 30
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "enabled": true,
+      "timeout": 60
+    },
+    "mtg-commander-analyzer": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "cd",
+        "/d",
+        "<PATH_TO_MTG_COMMANDER_ANALYZER_MCP>",
+        "&&",
+        "npm",
+        "run",
+        "mcp"
+      ],
+      "enabled": false
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp@latest"],
+      "enabled": true,
+      "timeout": 120,
+      "env": {
+        "FIRECRAWL_API_KEY": "<YOUR_FIRECRAWL_API_KEY>"
+      }
+    },
+    "notion": {
+      "url": "https://mcp.notion.com/mcp",
+      "enabled": true,
+      "timeout": 30
+    },
+    "fetch": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "mcp/fetch@sha256:302c629381f2a7e9599bffe3ee742e519a60c85ab777a45f296d4dbd02e13fa0"
+      ],
+      "enabled": true,
+      "timeout": 30
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "<ALLOWED_ROOT_DIRECTORY>"
+      ],
+      "enabled": true,
+      "timeout": 30
+    },
+    "exa": {
+      "command": "npx",
+      "args": ["-y", "exa-mcp-server"],
+      "enabled": true,
+      "timeout": 30,
+      "env": {
+        "EXA_API_KEY": "<YOUR_EXA_API_KEY>"
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+---
+description: Cursor rules authoring, maintenance, and quality standards — activates when editing .mdc rule files or rules directories
+globs:
+  - "**/.cursor/rules/**/*"
+  - "**/.cursor/rules/*.mdc"
+  - "**/rules/**/*.mdc"
+alwaysApply: false
+---
+
+# Cursor rules management
+
+## File and structure
+
+- Rules live under `PROJECT_ROOT/.cursor/rules/` as kebab-case `.mdc` files.
+- Use `.mdc` extension with YAML frontmatter (`description`, `globs`, `alwaysApply`).
+- **Target under 200 lines per file** — all rule content is loaded into the model context, consuming tokens. Shorter rules are applied more reliably. Split at 200 lines.
+- One concern per file; avoid mixed-topic blobs.
+
+## Frontmatter quality
+
+- `description`: write it for the "Apply Intelligently" mode — the agent reads it to decide relevance. Make it specific: `"Testing conventions — AAA pattern, mocking, TDD anti-patterns"` beats `"Testing rules"`.
+- `globs`: use precise patterns scoped to the smallest relevant file set.
+- `alwaysApply: true`: only for rules that are truly universal across every task and every project. Every `alwaysApply: true` rule adds to the baseline token budget for all sessions.
+
+## Content quality
+
+- Be specific and actionable; vague rules ("write good code") are ignored by the model.
+- Prefer bullet lists and short headers over prose paragraphs.
+- Do not duplicate common conventions the AI already knows (npm, git, standard library usage).
+- Reference real files from the codebase using `@filename` rather than copying their contents.
+
+## Load order
+
+- Cursor loads `alwaysApply: true` files in lexicographic order. Use numeric prefixes (`00-base.mdc`, `01-core.mdc`) when order of alwaysApply rules matters.
+- Glob-scoped rules have no guaranteed order — write each to be self-contained.
+
+## Maintenance
+
+- Update rules when repeated agent mistakes, new stack conventions, or new patterns emerge.
+- Deprecate outdated rules explicitly; remove or replace rather than leaving contradictory active versions.
+- Prefer fewer, stronger rules over many fragmented micro-rules that repeat the same idea.

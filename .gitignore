@@ -1,0 +1,16 @@
+# Local Cursor workspace plans (not part of the published bundle)
+.cursor/plans/
+
+# Hook runtime logs (local only)
+hooks/logs/
+
+# Shipped by Cursor under ~/.cursor/skills-cursor — do not commit this tree in this repo
+skills-cursor/
+
+# Local MCP config with secrets (use mcp/mcp.config.example.json as template)
+mcp/mcp.json
+mcp/*.local.json
+
+# OS noise
+.DS_Store
+Thumbs.db

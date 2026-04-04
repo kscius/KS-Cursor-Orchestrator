@@ -1,0 +1,53 @@
+---
+description: Testing conventions — test structure, AAA pattern, mocking strategy, TDD discipline, and anti-patterns. Activates on test and spec files.
+globs:
+  - "**/*.{test,spec}.{ts,tsx,js,jsx,py,rb,php}"
+  - "**/__tests__/**/*"
+  - "**/tests/**/*"
+  - "**/test/**/*"
+  - "**/spec/**/*"
+  - "**/e2e/**/*"
+  - "**/cypress/**/*"
+  - "**/playwright/**/*"
+alwaysApply: false
+---
+
+# Testing conventions
+
+Activate when editing or creating test files.
+
+## Structure (AAA pattern)
+
+- Arrange → Act → Assert; one clear assertion per test case.
+- Name tests as behavior statements: `it("returns 401 when token is expired")`, not `it("test auth")`.
+- Group related cases under a single `describe`/`context` block; keep nesting shallow.
+
+## Scope by layer
+
+- **Unit:** isolated, in-memory; mock all I/O and external services; must be fast.
+- **Integration:** test real module boundaries; real DB or in-process service where feasible.
+- **E2E:** critical happy paths and at least one failure path per flow; not a substitute for unit coverage.
+
+## Mocking
+
+- Mock at the boundary (HTTP client, DB driver, queue), not deep inside the unit under test.
+- Prefer fake objects over mocks when the fake is simpler and stable.
+- Reset mocks between tests; avoid shared mutable state across test cases.
+
+## Coverage
+
+- Follow the project's documented coverage target; do not invent a percentage.
+- Prioritize coverage on: auth flows, payment flows, data mutations, public API contracts.
+- Do not test private implementation details or third-party library internals.
+
+## Anti-patterns
+
+- No `sleep()` or arbitrary waits — use deterministic async patterns, timers, or `waitFor`.
+- No vacuous tests that always pass regardless of behavior.
+- No copy-paste test bodies with minor variable changes — extract helpers or use parameterization.
+- Do not assert on unrelated side effects; keep each test's scope narrow.
+
+## Commands
+
+Derive the test command from repo evidence (package.json scripts, Makefile, CI config).
+Never invent a test command.

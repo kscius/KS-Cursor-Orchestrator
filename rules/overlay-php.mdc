@@ -1,0 +1,11 @@
+---
+description: PHP strict typing and PSR-12 (scoped)
+globs:
+  - "**/*.php"
+alwaysApply: false
+---
+
+# PHP
+
+- Use `declare(strict_types=1);` when the project does; typed signatures and properties when available; PSR-12.
+- One primary class per file; Composer autoloading; prefer exceptions over silent failure; avoid `@` suppression.

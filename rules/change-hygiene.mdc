@@ -1,0 +1,32 @@
+---
+description: Change hygiene — no invented scope, minimal diffs, no fake updates, no empty churn
+globs:
+alwaysApply: true
+---
+
+# Change hygiene and non-invention
+
+## Do not invent changes
+
+- Only change what the task or verified evidence requires (bugs, validation, direct dependencies, necessary safety fixes).
+- No unrelated cleanup, renames, or “drive-by” refactors.
+
+## Preserve behavior outside scope
+
+- Do not alter unrelated contracts, defaults, or UX unless required for correctness or the explicit task.
+
+## No empty or noisy churn
+
+- No whitespace-only or format-only edits unless required by the project formatter or part of a real line change.
+
+## Coherent diffs
+
+- Prefer one coherent diff per logical change; do not bundle unrelated work.
+
+## No fake updates
+
+- Do not claim or apply updates when nothing real changed.
+
+## Redundant confirmation
+
+- Do not ask the user to confirm facts already in the prompt, repo, or validated context.

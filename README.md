@@ -92,40 +92,80 @@ Command-line execution patterns that support repeatable and automatable software
 
 ## Installation
 
-Clone the repository:
+Same pattern as [Oh My OpenCode](https://github.com/code-yeongyu/oh-my-openagent): humans paste **one prompt** that points the agent at a **raw** install guide; the guide is **executor-only** (for the assistant), not a human tutorial.
+
+**Canonical install protocol (repository path):** [`docs/guide/installation.md`](./docs/guide/installation.md)
+
+### For humans
+
+Copy and paste into **Cursor Chat** (or any agent that can use your disk and terminal):
+
+```text
+Install and configure KS Cursor Orchestrator by following the instructions here:
+https://raw.githubusercontent.com/kscius/ks-cursor-orchestrator/main/docs/guide/installation.md
+```
+
+Then **allow** file and terminal access when prompted so the assistant can copy into `~/.cursor/` (Windows: `%USERPROFILE%\.cursor`).
+
+**Optional — if you already have the repo open in Cursor:** you can `@docs/guide/installation.md` instead of the URL.
+
+**Forks / other branches:** replace `kscius/ks-cursor-orchestrator` and `main` in the raw URL with your GitHub owner, repo, and default branch.
+
+### For LLM agents
+
+Fetch the install guide and follow it (resolve `REPO_ROOT`, run the copy block for the user’s OS, validate `hooks.json`, list paths touched):
 
 ```bash
-git clone https://github.com/<your-username>/ks-cursor-orchestrator.git
+curl -fsSL https://raw.githubusercontent.com/kscius/ks-cursor-orchestrator/main/docs/guide/installation.md
+```
+
+If you already have this repository as the workspace, **read** `docs/guide/installation.md` from disk instead of `curl` so you always match the checked-out revision.
+
+**Legacy:** [`LLM_Installer.md`](./LLM_Installer.md) is a short pointer to `docs/guide/installation.md` for old links or `@` mentions.
+
+### Clone the repository (optional)
+
+```bash
+git clone https://github.com/kscius/ks-cursor-orchestrator.git
 cd ks-cursor-orchestrator
-````
+```
 
-Then copy or adapt the relevant setup into your Cursor environment depending on how you organize your local Cursor configuration.
+Then run the **For humans** prompt above, or `@docs/guide/installation.md`, from that workspace.
 
-At a high level, installation usually means:
+**Not copied by the protocol (by design):** Cursor’s built-in `~/.cursor/skills-cursor/`, **User Rules** (Settings → Rules; not mirrored into `~/.cursor` as files), and MCP secrets. This repo includes a **public text mirror** of the maintainer’s User Rules in [`user-rules/PUBLIC_USER_RULES.md`](./user-rules/PUBLIC_USER_RULES.md) (+ [part 2](./user-rules/PUBLIC_USER_RULES_PART2.md)) — copy into Settings manually if you want them. See [`user-rules/README.md`](./user-rules/README.md) and [`mcp/README.md`](./mcp/README.md).
 
-1. placing rules in your Cursor rules location
-2. placing commands in your Cursor commands location
-3. adding subagents, hooks, and MCP configuration as needed
-4. adapting paths, tools, and conventions to your machine and workflow
-
-Because Cursor setups can vary, treat this repository as a reusable operating layer rather than a one-click universal install.
+Quick path reference: [`docs/cursor-install-paths.md`](./docs/cursor-install-paths.md).  
+Why there is no `skills-cursor/` folder here: [`docs/skills-cursor-not-in-repo.md`](./docs/skills-cursor-not-in-repo.md).  
+Validate or diff against your live profile: [`docs/sync-checklist.md`](./docs/sync-checklist.md).
 
 ---
 
-## Suggested Repository Structure
+## Repository layout
 
 ```text
 ks-cursor-orchestrator/
+├── LLM_Installer.md      # Pointer → docs/guide/installation.md (compatibility)
+├── docs/
+│   ├── guide/
+│   │   └── installation.md   # Canonical executor install protocol (raw URL in README)
+│   ├── cursor-install-paths.md
+│   ├── sync-checklist.md
+│   └── skills-cursor-not-in-repo.md
+├── AGENTS.md             # Copy to ~/.cursor/AGENTS.md (global agent defaults)
 ├── README.md
 ├── LICENSE
 ├── CONTRIBUTING.md
-├── Cursor Rules/
-├── Cursor Commands/
-├── Cursor Subagents/
-├── Cursor Hooks/
-├── Cursor MCPs/
-└── examples/
+├── rules/                # ~/.cursor/rules — profile .mdc rules (+ README)
+├── commands/             # ~/.cursor/commands — slash commands (+ README)
+├── agents/               # ~/.cursor/agents — Cursor subagents (+ README)
+├── skills/               # ~/.cursor/skills — agent skills (+ README)
+├── hooks/                # ~/.cursor/hooks + ~/.cursor/hooks.json (+ README)
+├── mcp/                  # README + mcp.config.example.json (template; copy to ~/.cursor/mcp.json)
+├── user-rules/           # README + PUBLIC_USER_RULES*.md (mirror of Settings → Rules; not auto-installed)
+└── extensions/         # Note: IDE extensions are not copied from this repo
 ```
+
+This repository is **not** an application: it is a versioned **Cursor configuration bundle** plus an **agent-executable** install guide (`docs/guide/installation.md`).
 
 ---
 

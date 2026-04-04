@@ -1,0 +1,12 @@
+---
+description: Python and Jupyter conventions (scoped)
+globs:
+  - "**/*.py"
+  - "**/*.ipynb"
+alwaysApply: false
+---
+
+# Python / Jupyter
+
+- PEP 8; validate data early; docstrings where useful; try/except around I/O and fragile operations.
+- Prefer vectorized pandas/numpy when appropriate; keep notebooks reproducible and readable.
