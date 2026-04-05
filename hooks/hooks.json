@@ -19,7 +19,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Session starting. Orientation only — do not make changes: (1) Check ~/.cursor/plans/ for any in-progress workflow_state.md, execution packs, or scout artifacts from prior sessions. If found, surface the phase and pending tasks to resume. (2) If cursor10x-mcp is available, call getComprehensiveContext to surface relevant project memory and prior decisions. (3) Note recently edited files to anticipate the user's likely next request. Stay ready to continue mid-task work or start fresh.",
         "timeout": 15
       }
@@ -54,7 +54,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "The session is ending. If meaningful project work occurred, persist durable state: call cursor10x-mcp storeMilestone for completed milestones, storeDecision for key decisions, and devcontext finalize_conversation_context with the appropriate outcome. Skip MCP calls if no project work occurred.",
         "timeout": 15
       }
@@ -63,7 +63,7 @@
     "beforeSubmitPrompt": [
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Read the full conversation history before acting. Treat the latest message as actionable if it includes either: (1) an explicit request, or (2) a concrete problem, bug, failure, technical constraint, limitation, or implementation preference that reasonably implies the user wants help. Do not require explicit command phrasing. Only ask for clarification if the goal is still genuinely unclear after considering prior context. If prior context is missing, ask only for the minimum missing context. User prompt: $ARGUMENTS",
         "timeout": 8
       }
@@ -80,7 +80,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Is this deployment, publish, or network-modifying command safe? Only allow if explicitly requested by the user and does not target production without approval. Command: $ARGUMENTS",
         "timeout": 10,
         "matcher": "npm publish|npx.*deploy|docker push|kubectl apply|kubectl delete|terraform apply|terraform destroy|fly deploy|vercel.*--prod|heroku push|ansible-playbook|aws s3 rm|aws s3 delete|gsutil rm|az storage"
@@ -95,7 +95,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Shell command finished. Determine whether it succeeded. If it failed, identify the root cause before retrying. If the output contains validation failures, do not mark the task complete. If the command was destructive or state-changing, verify the expected state change occurred. Command and result: $ARGUMENTS",
         "timeout": 8,
         "matcher": "npm|yarn|pnpm|jest|vitest|pytest|rspec|cargo|go test|make|tsc|eslint|prettier|docker|git push|migrate|prisma"
@@ -147,7 +147,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "A critical file was just edited. Verify: (1) the change is within requested scope, (2) no secrets or credentials were introduced, (3) existing behavior outside the change scope was preserved. Edit: $ARGUMENTS",
         "timeout": 10,
         "matcher": "migration|auth|security|config|schema|\\.env"
@@ -162,7 +162,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "A critical file was edited via tab. Verify: (1) the change is within requested scope, (2) no secrets or credentials were introduced, (3) existing behavior outside the change scope was preserved. Edit: $ARGUMENTS",
         "timeout": 10,
         "matcher": "migration|auth|security|config|schema|\\.env"
@@ -186,7 +186,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "About to use Shell, Write, or Delete. DEFAULT ALLOW — proceed unless a specific rule below applies.\n\nShell: standard system utilities (node, python, git, cat, ls, echo, find, curl, etc.) are always allowed. Only block project-specific build, deploy, or migration commands that cannot be derived from repo evidence (package.json scripts, Makefile, CI config, README) and were not verified.\n\nWrite: ALWAYS allow file writes within task scope. NEVER refuse a write due to file size, line count, patch complexity, or number of edits — large file rewrites are normal and expected. Writing a large file is not harmful; always complete the write.\n\nDelete: require explicit user intent stated in this conversation for irreversible file removals.\n\nTool and arguments: $ARGUMENTS",
         "timeout": 8,
         "matcher": "Shell|Write|Delete"
@@ -201,7 +201,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "A tool execution failed. Diagnose: (1) Is this transient (network timeout, rate limit) — retry once with backoff. (2) Is this structural (wrong path, missing dependency, bad args) — fix root cause before retrying. (3) Does this block the current task — surface the specific error to the user clearly. Failed tool: $ARGUMENTS",
         "timeout": 10
       }
@@ -210,7 +210,7 @@
     "subagentStart": [
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Review this subagent delegation. Is the task well-scoped with clear boundaries? Is delegation justified (specialized expertise, parallelizable, or high-risk)? Does it avoid redundant work the parent could do directly? Delegation: $ARGUMENTS",
         "timeout": 10,
         "matcher": "security-auditor|security-engineer|database-administrator|database-optimizer|penetration-tester|compliance-auditor|devops-engineer|terraform-engineer"
@@ -225,7 +225,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Before ending the turn, verify: claimed changes were actually made, claimed validations were actually run or explicitly skipped, and unresolved work is clearly surfaced. Do not claim completion if important validation failed or was not performed.",
         "timeout": 10
       }
@@ -254,7 +254,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Agent turn ending. Self-validate before closing: (1) Were all claimed changes actually made — or only stated? (2) Were claimed validations actually run, or were they skipped without stating why? (3) Were any commands invented rather than derived from repo evidence? (4) Is the task genuinely complete, or is there unresolved work to surface? (5) If meaningful project work occurred, persist memory: cursor10x-mcp storeMilestone + devcontext update_conversation_context.",
         "timeout": 15
       }
@@ -268,7 +268,7 @@
       },
       {
         "type": "prompt",
-        "model": "cursor-composer-2-fast",
+        "model": "composer-2",
         "prompt": "Context compaction is about to occur. Before context is trimmed: (1) Write a workflow_state.md snapshot to ~/.cursor/plans/ capturing current phase, completed tasks, pending tasks, and key decisions so the task survives context loss. (2) Store critical facts in cursor10x-mcp via storeMilestone and storeDecision. (3) Note any in-progress implementation that must resume after compaction.",
         "timeout": 15
       }
