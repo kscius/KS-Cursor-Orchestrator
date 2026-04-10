@@ -4,18 +4,18 @@ globs:
 alwaysApply: false
 ---
 
-# Devcontext MCP — Conversation context and retrieval
+# Devcontext MCP — Conversation Context and Retrieval
 
-The **devcontext** MCP manages shared conversation context, retrieval of relevant information, and milestone recording. Use these tools to stay consistent across turns and agents.
+The **devcontext** MCP manages the shared conversation context, relevant information retrieval, and milestone recording. Use these tools to maintain coherence across turns and across agents.
 
 ## Available tools
 
 ### 1. initialize_conversation_context
-**When**: At the start of a conversation or task that needs structured context (multiple agents, long sessions, need to recover recent code/docs).
+**When**: At the start of a conversation or task that requires structured context (multiple agents, long sessions, need to retrieve recent code/docs).
 
 **Main parameters**:
-- `initialQuery` (string): Initial question or theme to steer context loading.
-- `focusHint` (optional): `{ type, identifier }` — focus on an entity (e.g. file, module).
+- `initialQuery` (string): Initial question or topic to guide context loading.
+- `focusHint` (optional): `{ type, identifier }` — focus on a specific entity (e.g. file, module).
 - `contextDepth`: `"minimal"` | `"standard"` | `"comprehensive"` (default: `"standard"`).
 - `includeArchitecture` (boolean, default: true): Include architecture information.
 - `includeRecentConversations` (boolean, default: true): Include recent conversations.
@@ -23,36 +23,36 @@ The **devcontext** MCP manages shared conversation context, retrieval of relevan
 - `maxRecentChanges` (number, default: 5): Limit of recent changes.
 - `tokenBudget` (number, default: 4000): Token budget for context.
 
-**Rule**: Use when starting a complex work session or when the user asks to “recover context” or “remember what we did”.
+**Rule**: Use when starting a complex work session or when the user asks to "restore context" or "remember what we did".
 
 ---
 
 ### 2. update_conversation_context
-**When**: After new messages or code changes in the conversation, so shared context stays current.
+**When**: After new messages or code changes in the conversation, to keep the shared context up to date.
 
 **Main parameters**:
 - `conversationId` (string, required): Conversation ID.
 - `newMessages` (array): `[{ role: "user"|"assistant"|"system", content }]` — new messages.
-- `codeChanges` (array): `[{ filePath, newContent, languageHint? }]` — code changes to merge in.
-- `preserveContextOnTopicShift` (boolean, default: true): Keep context when the topic shifts.
+- `codeChanges` (array): `[{ filePath, newContent, languageHint? }]` — code changes to incorporate.
+- `preserveContextOnTopicShift` (boolean, default: true): Maintain context when topic changes.
 - `contextIntegrationLevel`: `"minimal"` | `"balanced"` | `"aggressive"` (default: `"balanced"`).
 - `trackIntentTransitions` (boolean, default: true): Track intent changes.
 - `tokenBudget` (number, default: 4000).
 
-**Rule**: Call after meaningful exchanges or code edits that affect project decisions or state.
+**Rule**: Call after relevant exchanges or code edits that affect decisions or project state.
 
 ---
 
 ### 3. retrieve_relevant_context
-**When**: When you need extra context for a specific question or task (query search, filters by type or file).
+**When**: When you need additional context for a specific question or task (search by query, filters by type or file).
 
 **Main parameters**:
 - `conversationId` (string, required).
-- `query` (string, required): Question or theme for retrieval.
+- `query` (string, required): Question or topic for retrieval.
 - `constraints` (optional):
   - `entityTypes`, `filePaths`: restrict to entity types or files.
   - `includeConversation` (default: true), `crossTopicSearch` (default: false).
-  - `focusOverride`: `{ type, identifier }` to focus on an entity.
+  - `focusOverride`: `{ type, identifier }` to focus on a specific entity.
 - `contextFilters`: `minRelevanceScore`, `excludeTypes`, `preferredLanguages`, `timeframe`.
 - `weightingStrategy`: `"relevance"` | `"recency"` | `"hierarchy"` | `"balanced"`.
 - `balanceStrategy`: `"proportional"` | `"equal_representation"` | `"priority_based"`.
@@ -60,27 +60,27 @@ The **devcontext** MCP manages shared conversation context, retrieval of relevan
 - `sourceTypePreferences`: `includeDocumentation`, `includePatterns`, `prioritizeExamples`, `prioritizeTestCases`.
 - `tokenBudget` (default: 4000).
 
-**Rule**: Use when the answer depends on prior code, docs, or conversation and you do not already have that context in the turn.
+**Rule**: Use when the answer depends on code, docs, or prior conversation that you do not already have in the current turn.
 
 ---
 
 ### 4. record_milestone_context
-**When**: When completing a significant milestone (bug fix, feature, refactor, docs, tests, configuration) so it is recorded in context.
+**When**: Upon completing a significant milestone (bug fix, feature, refactor, docs, tests, configuration) so it is recorded in the context.
 
 **Main parameters**:
 - `conversationId` (string, required).
 - `name` (string, required): Milestone name.
-- `description` (string, optional): What was done.
+- `description` (string, optional): Description of what was done.
 - `milestoneCategory`: `"bug_fix"` | `"feature_completion"` | `"refactoring"` | `"documentation"` | `"test"` | `"configuration"` | `"uncategorized"` (default: `"uncategorized"`).
-- `customData` (object, optional): Extra data.
-- `assessImpact` (boolean, default: true): Assess milestone impact.
+- `customData` (object, optional): Additional data.
+- `assessImpact` (boolean, default: true): Assess the milestone's impact.
 
-**Rule**: Call when closing a bug, finishing a feature, an important refactor, or a docs/tests block so context “remembers” progress.
+**Rule**: Call when closing a bug, completing a feature, significant refactor, or documentation/test block so the context "remembers" the progress.
 
 ---
 
 ### 5. finalize_conversation_context
-**When**: When closing or pausing a conversation definitively; extracts learnings, patterns, and next steps.
+**When**: When definitively closing or pausing a conversation; extracts learnings, patterns, and next steps.
 
 **Main parameters**:
 - `conversationId` (string, required).
@@ -89,23 +89,23 @@ The **devcontext** MCP manages shared conversation context, retrieval of relevan
 - `promotePatterns` (boolean, default: true).
 - `synthesizeRelatedTopics` (boolean, default: true).
 - `generateNextSteps` (boolean, default: true).
-- `clearActiveContext` (boolean, default: false): Clear active context on finalize.
+- `clearActiveContext` (boolean, default: false): Clear active context on finalization.
 
-**Rule**: Use when the user ends the session, says “done for today”, or the task is explicitly completed or abandoned.
+**Rule**: Use when the user closes the session, says "done for today", or when the task is explicitly completed or abandoned.
 
 ---
 
 ## Recommended flow
 
 1. **Start**: `initialize_conversation_context` with `initialQuery` and optionally `focusHint` and `contextDepth`.
-2. **During**: `update_conversation_context` after relevant messages or code changes; `retrieve_relevant_context` when you need more context for a specific question.
-3. **Milestones**: `record_milestone_context` when bugs, features, refactors, or docs/test blocks complete.
+2. **During the conversation**: `update_conversation_context` after relevant messages or code changes; `retrieve_relevant_context` when you need more context for a specific question.
+3. **Milestones**: `record_milestone_context` when completing bugs, features, refactors, or documentation/test blocks.
 4. **Close**: `finalize_conversation_context` with the appropriate `outcome`.
 
 ## Usage rules
 
-- Always use the same `conversationId` for one conversation across all calls.
-- Do not call `update_conversation_context` on every message; call when messages or changes affect project state or decisions.
-- For one-off questions (“where is X?”, “how do we do Y?”), prefer `retrieve_relevant_context` with a clear `query`.
-- Reserve `finalize_conversation_context` for explicit closures; not after every reply.
+- Always use the same `conversationId` for the same conversation across all calls.
+- Do not call `update_conversation_context` on every message; do it when there are messages or changes that affect project state or decisions.
+- For specific questions ("where is X?", "how do I do Y?"), prioritize `retrieve_relevant_context` with a clear `query`.
+- Reserve `finalize_conversation_context` for explicit closes; not at the end of every response.
 - `contextDepth` and `tokenBudget` control cost and context size; use `"minimal"` for simple tasks and `"comprehensive"` for long or multi-agent sessions.

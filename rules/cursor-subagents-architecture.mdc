@@ -1,4 +1,4 @@
----
+﻿---
 description: Architecture and routing guide for Cursor-native subagents (~/.cursor/agents/) vs Claude-compatible agents (~/.claude/agents/). Governs model assignment, readonly, is_background, and when to use each tier.
 globs:
   - "**/*"

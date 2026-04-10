@@ -1,4 +1,4 @@
-# Department stats: observability from local hook logs and plans
+﻿# Department stats: observability from local hook logs and plans
 
 Produce an **aggregate activity and quality report** for the autonomous software department using only **local** data under the user Cursor home. No GitHub repo or external project is required.
 

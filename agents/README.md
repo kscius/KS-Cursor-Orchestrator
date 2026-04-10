@@ -1,6 +1,4 @@
-# Cursor subagents — `~/.cursor/agents/`
-
-In **this repository**, the same files live under `agents/` at the repo root. After installation, they belong in **`~/.cursor/agents/`**.
+# ~/.cursor/agents — Cursor-Native Subagents
 
 This directory contains **Cursor-native subagents** optimized for Cursor's built-in features:
 - `model: fast` for lightweight/parallel tasks

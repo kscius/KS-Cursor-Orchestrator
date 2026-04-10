@@ -1,4 +1,4 @@
----
+﻿---
 description: Orchestration protocol — brainstorming gates, SequentialThinking triggers, MCP lifecycle, and Task model routing for multi-phase workflows
 globs:
 alwaysApply: true
@@ -68,6 +68,22 @@ Invoke **`user-Sequentialthinking`** when **any** of the following is true:
 **Optional (judgment):** LOW confidence investigation; CRITIC **REWORK** with many moving parts.
 
 **Do not** invoke for: clearly SIMPLE tasks with SCOUT confirming one obvious path, or when repo evidence **uniquely** determines the approach.
+
+---
+
+## Memory stack — four layers
+
+| Layer | MCP | When to call |
+|-------|-----|-------------|
+| L0 — Session context | `user-devcontext` | INTAKE start / CLOSE |
+| L1 — Entity graph | `user-Memory` | When persisting named facts about people/projects |
+| L2 — Structured project memory | `user-cursor10x-mcp` | Phase boundaries: milestones, decisions, episodes |
+| L3 — Verbatim semantic memory | `user-mempalace` | When prior reasoning/verbatim detail is needed; at CLOSE to save session |
+| L4 — Human-authored knowledge | `user-obsidian` | When user asks about vault notes, project docs, or asks to save something permanently |
+
+**MemPalace (L3):** call `mempalace_status` at session start for critical facts (~170 tokens). Call `mempalace_search` when cursor10x lacks the verbatim detail. Call `mempalace_add_drawer` at session end when meaningful work occurred. See `mempalace-mcp.mdc` for full tool reference.
+
+**Obsidian (L4):** call `search_notes` when user asks about vault content or project documentation. L4 is human-authoritative — takes precedence over AI-generated memory on the same topic. See `obsidian-mcp.mdc` for full guidance.
 
 ---
 

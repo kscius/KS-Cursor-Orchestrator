@@ -35,11 +35,14 @@ Alternatively, add servers one by one in **Cursor → Settings → MCP** using t
 | **exa** | `EXA_API_KEY` from [Exa](https://exa.ai/). |
 | **filesystem** | One or more allowed root paths (replace `<ALLOWED_ROOT_DIRECTORY>`). **Use a narrow path** (e.g. project root), not a full drive, unless you accept the risk. |
 | **mtg-commander-analyzer** | Absolute path to your clone of the MCP server repo (Windows `cmd` example; on macOS/Linux use a `sh -c` style command or Cursor’s equivalent). |
+| **mempalace** | `python` on `PATH` (or set `command` to your Python executable). Install the `mempalace` package; see [`../rules/mempalace-mcp.mdc`](../rules/mempalace-mcp.mdc). |
+| **obsidian** | Path to your Obsidian vault directory (`<OBSIDIAN_VAULT_PATH>` as the last `npx` argument). |
 
 ## Prerequisites
 
 - **Docker** — for Memory, Sequential Thinking, time, semgrep, fetch, cursor10x-mcp (image must be built locally).  
-- **Node.js / `npx`** — for Interactive, duckduckgo, devcontext, playwright, firecrawl, exa, filesystem.  
+- **Node.js / `npx`** — for Interactive, duckduckgo, devcontext, playwright, firecrawl, exa, filesystem, obsidian.  
+- **Python** — for MemPalace (`python -m mempalace.mcp_server`) when that server is enabled.  
 - **Network** — for HTTP MCPs (context7, github, linear, notion, stitch).
 
 ## Servers in `mcp.config.example.json` (overview)
@@ -65,10 +68,14 @@ Alternatively, add servers one by one in **Cursor → Settings → MCP** using t
 | fetch | Docker | HTTP fetch MCP |
 | filesystem | npx | Scoped filesystem access |
 | exa | npx | Search |
+| mempalace | Python module | Local semantic memory (optional) |
+| obsidian | npx | Obsidian vault integration (optional) |
 
 Docker image digests in the example are **pins from a working setup**; upstream may publish newer digests or tags — update if a pull fails.
 
 ## References in repo rules
 
 - [`../rules/cursor10x-mcp.mdc`](../rules/cursor10x-mcp.mdc)  
-- [`../rules/devcontext-mcp.mdc`](../rules/devcontext-mcp.mdc)
+- [`../rules/devcontext-mcp.mdc`](../rules/devcontext-mcp.mdc)  
+- [`../rules/mempalace-mcp.mdc`](../rules/mempalace-mcp.mdc)  
+- [`../rules/obsidian-mcp.mdc`](../rules/obsidian-mcp.mdc)

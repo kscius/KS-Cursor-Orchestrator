@@ -1,4 +1,4 @@
-#Generate an execution-ready plan without implementing
+﻿#Generate an execution-ready plan without implementing
 
 Produce a detailed, actionable plan for the requested task without making any changes.
 

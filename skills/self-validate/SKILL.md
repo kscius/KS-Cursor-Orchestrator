@@ -1,4 +1,4 @@
----
+﻿---
 name: self-validate
 description: Anti-hallucination self-check gate. ALWAYS run this at the end of each task before declaring done. Validates that claims are evidence-based, commands exist, files were inspected, and validation was actually run.
 ---

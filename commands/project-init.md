@@ -1,4 +1,4 @@
-# Project init: bootstrap `.cursor/rules/` + intake template for the open workspace
+﻿# Project init: bootstrap `.cursor/rules/` + intake template for the open workspace
 
 Run when opening a **new or unfamiliar repo** so the department’s conventions apply **inside that project** (not in the global `~/.cursor` config). This command does **not** require the department itself to live in GitHub.
 

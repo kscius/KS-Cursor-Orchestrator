@@ -1,4 +1,4 @@
-# Department report: activity summary over a date range
+﻿# Department report: activity summary over a date range
 
 Summarize **what the department did** (plans, retrospectives, optional logs) for a **time window**—this is **not** a product changelog for a customer-facing repo. It answers: “What did we run through the agentic department lately?”
 

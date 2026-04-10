@@ -36,13 +36,21 @@
     },
     "Interactive": {
       "command": "npx",
-      "args": ["-y", "interactive-mcp@latest", "-t", "300"],
+      "args": [
+        "-y",
+        "interactive-mcp@latest",
+        "-t",
+        "300"
+      ],
       "enabled": true,
       "timeout": 300
     },
     "duckduckgo": {
       "command": "npx",
-      "args": ["-y", "duckduckgo-mcp-server@0.1.2"],
+      "args": [
+        "-y",
+        "duckduckgo-mcp-server@0.1.2"
+      ],
       "enabled": true,
       "timeout": 30
     },
@@ -57,7 +65,7 @@
         "--memory",
         "128m",
         "-e",
-        "TZ=America/Phoenix",
+        "TZ=America/Hermosillo",
         "mcp/time@sha256:9c46a918633fb474bf8035e3ee90ebac6bcf2b18ccb00679ac4c179cba0ebfcf"
       ],
       "enabled": true,
@@ -91,7 +99,7 @@
     "github": {
       "url": "https://api.githubcopilot.com/mcp/",
       "headers": {
-        "Authorization": "Bearer <YOUR_GITHUB_COPILOT_OR_FINE_GRAINED_TOKEN>"
+        "Authorization": "Bearer <YOUR_TOKEN>"
       },
       "enabled": true,
       "timeout": 30
@@ -116,31 +124,37 @@
       "enabled": true,
       "timeout": 60,
       "env": {
-        "TURSO_DATABASE_URL": "<YOUR_TURSO_LIBSQL_URL>",
-        "TURSO_AUTH_TOKEN": "<YOUR_TURSO_AUTH_TOKEN>"
+        "TURSO_DATABASE_URL": "libsql://<YOUR_CURSOR10X_DB>.turso.io",
+        "TURSO_AUTH_TOKEN": "<REDACTED>"
       }
     },
     "devcontext": {
       "command": "npx",
-      "args": ["-y", "devcontext@latest"],
+      "args": [
+        "-y",
+        "devcontext@latest"
+      ],
       "enabled": true,
       "timeout": 30,
       "env": {
-        "TURSO_DATABASE_URL": "<YOUR_DEVCONTEXT_TURSO_LIBSQL_URL>",
-        "TURSO_AUTH_TOKEN": "<YOUR_DEVCONTEXT_TURSO_AUTH_TOKEN>"
+        "TURSO_DATABASE_URL": "libsql://<YOUR_DEVCONTEXT_DB>.turso.io",
+        "TURSO_AUTH_TOKEN": "<REDACTED>"
       }
     },
     "stitch": {
       "url": "https://stitch.googleapis.com/mcp",
       "headers": {
-        "X-Goog-Api-Key": "<YOUR_GOOGLE_STITCH_OR_GEMINI_API_KEY>"
+        "X-Goog-Api-Key": "<GOOGLE_API_KEY>"
       },
       "enabled": true,
       "timeout": 30
     },
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ],
       "enabled": true,
       "timeout": 60
     },
@@ -150,7 +164,7 @@
         "/c",
         "cd",
         "/d",
-        "<PATH_TO_MTG_COMMANDER_ANALYZER_MCP>",
+        "<PATH_TO_MTG_COMMANDER_MCP_CLONE>",
         "&&",
         "npm",
         "run",
@@ -160,11 +174,14 @@
     },
     "firecrawl": {
       "command": "npx",
-      "args": ["-y", "firecrawl-mcp@latest"],
+      "args": [
+        "-y",
+        "firecrawl-mcp@latest"
+      ],
       "enabled": true,
       "timeout": 120,
       "env": {
-        "FIRECRAWL_API_KEY": "<YOUR_FIRECRAWL_API_KEY>"
+        "FIRECRAWL_API_KEY": "<REDACTED>"
       }
     },
     "notion": {
@@ -195,12 +212,37 @@
     },
     "exa": {
       "command": "npx",
-      "args": ["-y", "exa-mcp-server"],
+      "args": [
+        "-y",
+        "exa-mcp-server"
+      ],
       "enabled": true,
       "timeout": 30,
       "env": {
-        "EXA_API_KEY": "<YOUR_EXA_API_KEY>"
+        "EXA_API_KEY": "<REDACTED>"
       }
+    },
+    "mempalace": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mempalace.mcp_server"
+      ],
+      "enabled": true,
+      "timeout": 60,
+      "env": {
+        "PYTHONUTF8": "1"
+      }
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-obsidian",
+        "<OBSIDIAN_VAULT_PATH>"
+      ],
+      "enabled": true,
+      "timeout": 30
     }
   }
 }

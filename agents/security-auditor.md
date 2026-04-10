@@ -1,7 +1,7 @@
 ---
 name: security-auditor
 description: Security specialist. Use when reviewing code that touches auth, permissions, payments, sessions, user input, secrets, database queries, file access, or public API endpoints. Use proactively during CRITIC phase for STANDARD and COMPLEX tasks. Invoke with /security-auditor when security review is needed. Returns APPROVED / CAUTION / REWORK verdict.
-model: inherit
+model: composer-2
 readonly: true
 ---
 

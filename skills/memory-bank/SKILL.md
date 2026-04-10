@@ -1,4 +1,4 @@
----
+﻿---
 name: memory-bank
 description: >
   Scaffold and maintain a /memory_bank/ directory in any project.

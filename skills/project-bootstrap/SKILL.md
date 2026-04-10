@@ -1,4 +1,4 @@
----
+﻿---
 name: project-bootstrap
 description: >
   Bootstrap a new project with Cursor-ready configuration: AGENTS.md, per-project

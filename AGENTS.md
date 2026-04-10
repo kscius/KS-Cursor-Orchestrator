@@ -1,4 +1,4 @@
-# Agent instructions (global)
+﻿# Agent instructions (global)
 
 Tool-agnostic defaults for any coding agent (Cursor, Codex CLI, Gemini CLI, etc.) working on repositories you touch. **Cursor-specific** depth lives in `~/.cursor/rules/*.mdc`.
 

@@ -1,0 +1,89 @@
+---
+description: Obsidian vault MCP — human-curated knowledge base (L4). When to use the obsidian MCP server vs MemPalace, cursor10x, and devcontext. Available tools and vault structure.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Obsidian Vault MCP — Human-Curated Knowledge Base (L4)
+
+The `obsidian` MCP server exposes the user's Obsidian vault as a readable/writable knowledge base. This is **human-authored content** — notes, decisions, research, and documentation written intentionally by the user. It complements the AI-generated memory layers.
+
+**Vault path:** set in `mcp.json` as the last argument to `mcp-obsidian` (e.g. `<OBSIDIAN_VAULT_PATH>`). Do not commit real paths in shared repos.
+
+**Vault structure** (example — adapt to your vault):
+```
+Cursor/          → Tooling and editor notes (optional)
+Projects/        → Per-project notes
+Personal/        → Personal notes
+Welcome.md       → Vault landing page
+```
+
+---
+
+## Memory layer separation
+
+| Layer | MCP | Scope | What it stores | Who writes it |
+|-------|-----|-------|----------------|---------------|
+| L0 | devcontext | Session | Current conversation context | AI (auto) |
+| L1 | user-Memory | Global | Entity/relationship graph | AI (auto) |
+| L2 | cursor10x-mcp | Project | Structured milestones, decisions, episodes | AI (auto) |
+| L3 | mempalace | Cross-session | Verbatim AI conversation text | AI (auto) |
+| **L4** | **obsidian** | **Durable** | **Human-authored notes, ADRs, research, docs** | **Human (intentional)** |
+
+**Key distinction:** L0–L3 hold *what the AI did and learned*. L4 holds *what the human chose to write down and keep*.
+
+When both have the same fact, **L4 (Obsidian) takes precedence** — it represents the human's deliberate choice about what is true and important.
+
+---
+
+## When to use Obsidian tools
+
+### Search / read
+Use when:
+- User asks about something from their notes or vault ("what did I write about...", "do I have notes on...", "what's in my Obsidian about...")
+- You need project-specific documentation that the user would have written (PRDs, ADRs, specs, meeting notes)
+- Looking for project-level context not in cursor10x or MemPalace
+- User references a specific vault section (e.g., "check Sertevia notes", "look in Cursor folder")
+
+### Write / create
+The MCP is read-only. When the user asks to save something to the vault, provide the note content in chat and instruct them to create/paste it in Obsidian directly.
+
+### Do NOT use for
+- Saving AI conversation transcripts (use `mempalace_add_drawer` instead)
+- Storing project milestones or episode data (use `cursor10x-mcp`)
+- Routine session memory (use `devcontext`)
+- Anything the user did not explicitly choose to keep in the vault
+
+---
+
+## Available tools (mcp-obsidian v1.0.0)
+
+| Tool | When to use |
+|------|-------------|
+| `search_notes` | Full-text search across all vault notes — primary discovery tool |
+| `read_notes` | Read the content of one or more notes by path |
+
+**Note:** `mcp-obsidian` is read-only. To write/create vault notes, ask the user to do it directly in Obsidian. This keeps the vault as a human-curated source.
+
+**Primary tool:** `search_notes` for discovery; `read_notes` for content.
+
+---
+
+## Integration with other layers
+
+When a user asks about a topic, search order:
+1. `search_notes` in Obsidian (L4) — human-authoritative content
+2. `mempalace_search` (L3) — verbatim AI conversation history
+3. `cursor10x` `getComprehensiveContext` (L2) — project milestones/decisions
+
+Stop when sufficient context is found. Do not call all three by default.
+
+---
+
+## Key constraints
+
+- The vault lives in OneDrive — it syncs across devices.
+- Prefer `search_notes` over guessing note paths.
+- The MCP is **read-only** (`search_notes` + `read_notes`). Do not attempt writes; draft content in chat for the user to paste in Obsidian.
+- Obsidian MCP is **local-only** — no data leaves the machine beyond OneDrive sync (which the user controls).

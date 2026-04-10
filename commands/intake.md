@@ -1,4 +1,4 @@
-#Dedicated intake: context recovery, intent clarification, requirements brief
+﻿#Dedicated intake: context recovery, intent clarification, requirements brief
 
 Run **before** `/scout` or `/ks-conductor` when you want a structured handoff without repo reconnaissance yet—or when the ask is vague and needs alignment first.
 

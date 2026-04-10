@@ -1,0 +1,104 @@
+---
+description: MemPalace MCP — long-term semantic memory layer (L3). When to use each of the 19 tools and how MemPalace fits with cursor10x-mcp and devcontext.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# MemPalace MCP — Long-Term Semantic Memory (L3)
+
+MemPalace is the verbatim semantic memory layer. It stores entire conversation exchanges in ChromaDB and retrieves them via semantic search with 96.6% recall. It complements — does not replace — cursor10x-mcp and devcontext.
+
+## Memory layer separation
+
+| Layer | MCP | Scope | What it stores | Who writes |
+|-------|-----|-------|----------------|------------|
+| L0 | devcontext | Session | Current conversation context | AI (auto) |
+| L1 | user-Memory | Global | Entity/relationship graph | AI (auto) |
+| L2 | cursor10x-mcp | Project | Structured milestones, decisions, episodes | AI (auto) |
+| **L3** | **mempalace** | **Cross-session** | **Verbatim conversation text, semantic search** | **AI (auto)** |
+| L4 | obsidian | Durable | Human-authored notes, ADRs, research, docs | Human (intentional) |
+
+**Use MemPalace when the other layers lack the verbatim detail.** cursor10x stores *that* a decision was made; MemPalace stores *why* and the full reasoning. L4 (Obsidian) stores *what the human deliberately chose to document* — it takes precedence when both exist on a topic.
+
+---
+
+## When to call MemPalace tools
+
+### `mempalace_search` — PRIMARY TOOL
+Call when:
+- User asks about something from a past session ("why did we…", "what did we decide about…", "how did we solve…")
+- You need to check if a problem was already encountered before
+- You want to find prior architecture decisions with full context
+- cursor10x `getComprehensiveContext` doesn't have enough detail
+
+```
+mempalace_search("why switched to GraphQL", wing="agent_transcripts")
+mempalace_search("auth debugging session", room="technical")
+mempalace_search("cursor rules refactor decision")
+```
+
+### `mempalace_status`
+Call at **session start** to load L0 identity + L1 critical facts (~170 tokens). Gives the AI its world context before the first user message. Also called when you need to understand the palace structure.
+
+### `mempalace_add_drawer`
+Call to save important content to the palace:
+- At session end when `stop` hook fires and meaningful work occurred
+- Before context compaction (`preCompact`) to preserve critical insights
+- When the user explicitly asks to remember something
+- After resolving a difficult bug or making a key architecture decision
+
+### `mempalace_list_wings` / `mempalace_list_rooms` / `mempalace_get_taxonomy`
+Call to navigate the palace structure before a search. Helps narrow the search scope for better precision.
+
+### `mempalace_check_duplicate`
+Call before `mempalace_add_drawer` to avoid storing the same content twice.
+
+### `mempalace_kg_add` / `mempalace_kg_query` / `mempalace_kg_timeline` / `mempalace_kg_invalidate`
+Use the knowledge graph for temporal entity relationships:
+- `mempalace_kg_add`: when a new fact about a project, tool, or decision becomes established
+- `mempalace_kg_query`: "what is the current state of X?", "what was true about X at time T?"
+- `mempalace_kg_timeline`: chronological story of a project or entity
+- `mempalace_kg_invalidate`: when something that was true stops being true (e.g., switched frameworks)
+
+### `mempalace_traverse` / `mempalace_find_tunnels`
+Use for cross-wing discovery — finding the same topic (e.g., "auth") across different wings (cursor-setup, different projects).
+
+### `mempalace_diary_write` / `mempalace_diary_read`
+Use for specialist agent memory within a session. Not needed for general use.
+
+### `mempalace_delete_drawer`
+Use only when explicitly asked to remove content from the palace.
+
+---
+
+## Palace structure for this setup
+
+```
+wing_cursor_setup        → cursor global config decisions, rules, skills changes
+  rooms: agents, commands, rules, skills, hooks, plans, mcp_servers, documentation
+
+wing_agent_transcripts   → all past AI conversations
+  rooms: technical, architecture, planning, general (auto-classified)
+```
+
+---
+
+## Mining new conversations
+
+After a significant session, mine new transcripts to keep the palace current:
+
+```powershell
+$env:PYTHONUTF8=1; py -m mempalace mine "$env:USERPROFILE\.cursor\projects\<your-project>\agent-transcripts" --mode convos --wing agent_transcripts
+```
+
+Only new files are added (existing drawers are skipped automatically).
+
+---
+
+## Key constraints
+
+- Always use **raw mode** (the default) — AAAK compression trades recall (84.2%) for density. Not worth it.
+- MemPalace is **local only** — no data leaves the machine.
+- The palace lives at `%USERPROFILE%\.mempalace\palace` (default; configurable via MemPalace).
+- Call `mempalace_status` rather than other tools to get the full AAAK spec and memory protocol on demand.

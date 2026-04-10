@@ -1,4 +1,4 @@
----
+﻿---
 name: phase-handoff
 description: >-
   Normalized artifacts and checklists between SDLC phases (intake → scout →

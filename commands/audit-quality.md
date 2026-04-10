@@ -15,7 +15,7 @@ When no args are provided, audit ALL categories. When args specify a category (e
 
 ## EVALUATION CRITERIA
 
-### 1. Skills (`C:\Users\mitza\.cursor\skills\`)
+### 1. Skills (`~/.cursor/skills/`)
 
 Score each skill on:
 
@@ -25,7 +25,7 @@ Score each skill on:
 | **Token efficiency** | HIGH | SKILL.md < 150 lines; verbose content in `references/` |
 | **On-demand note** | HIGH | File starts with `> **On-demand loading**:` or equivalent |
 | **Progressive disclosure** | MEDIUM | Metadata → overview → references pattern followed |
-| **No duplication** | MEDIUM | Skill does not duplicate another skill in `C:\Users\mitza\.cursor\skills\` |
+| **No duplication** | MEDIUM | Skill does not duplicate another skill in `~/.cursor/skills/` |
 | **References present** | LOW | `references/` or `examples/` directory exists when needed |
 
 Scoring:
@@ -48,7 +48,7 @@ Score each rule on:
 
 Scoring: same GREEN / YELLOW / RED thresholds as skills.
 
-### 3. Commands (`C:\Users\mitza\.cursor\commands\`)
+### 3. Commands (`~/.cursor/commands/`)
 
 Score each command on:
 
@@ -60,14 +60,14 @@ Score each command on:
 | **Output format** | MEDIUM | OUTPUT FORMAT section present |
 | **Skill references** | LOW | PREFERRED SKILLS section lists relevant skills |
 
-### 4. MCPs (`C:\Users\mitza\.cursor\mcp.json`)
+### 4. MCPs (`~/.cursor/mcp.json`)
 
 Score the MCP configuration on:
 
 | Criterion | Pass condition |
 |-----------|----------------|
 | **Non-essential disabled** | Hobby/low-value MCPs have `"enabled": false` |
-| **Profile documented** | All servers are documented in `docs/mcp-profiles.md` |
+| **Profile documented** | All servers are documented in `mcp/README.md` (overview + placeholders) |
 | **No duplicate coverage** | No two MCPs serve the same purpose (e.g., two memory MCPs without clear role separation) |
 | **Tokens not in git** | `mcp.json` excluded from version control |
 

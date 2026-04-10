@@ -1,4 +1,4 @@
-#Audit the orchestrator configuration and health
+﻿#Audit the orchestrator configuration and health
 
 Self-audit the Cursor agent configuration for consistency, gaps, and improvements.
 

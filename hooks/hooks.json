@@ -20,7 +20,7 @@
       {
         "type": "prompt",
         "model": "composer-2",
-        "prompt": "Session starting. Orientation only — do not make changes: (1) Check ~/.cursor/plans/ for any in-progress workflow_state.md, execution packs, or scout artifacts from prior sessions. If found, surface the phase and pending tasks to resume. (2) If cursor10x-mcp is available, call getComprehensiveContext to surface relevant project memory and prior decisions. (3) Note recently edited files to anticipate the user's likely next request. Stay ready to continue mid-task work or start fresh.",
+        "prompt": "Session starting. Orientation only — do not make changes: (1) Check ~/.cursor/plans/ for any in-progress workflow_state.md, execution packs, or scout artifacts from prior sessions. If found, surface the phase and pending tasks to resume. (2) If cursor10x-mcp is available, call getComprehensiveContext to surface relevant project memory and prior decisions. (3) If mempalace is available, call mempalace_status to load L0 identity and L1 critical facts (~170 tokens of world context). (4) Note recently edited files to anticipate the user's likely next request. Stay ready to continue mid-task work or start fresh.",
         "timeout": 15
       }
     ],
@@ -255,7 +255,7 @@
       {
         "type": "prompt",
         "model": "composer-2",
-        "prompt": "Agent turn ending. Self-validate before closing: (1) Were all claimed changes actually made — or only stated? (2) Were claimed validations actually run, or were they skipped without stating why? (3) Were any commands invented rather than derived from repo evidence? (4) Is the task genuinely complete, or is there unresolved work to surface? (5) If meaningful project work occurred, persist memory: cursor10x-mcp storeMilestone + devcontext update_conversation_context.",
+        "prompt": "Agent turn ending. Self-validate before closing: (1) Were all claimed changes actually made — or only stated? (2) Were claimed validations actually run, or were they skipped without stating why? (3) Were any commands invented rather than derived from repo evidence? (4) Is the task genuinely complete, or is there unresolved work to surface? (5) If meaningful project work occurred, persist memory across all layers: cursor10x-mcp storeMilestone + devcontext update_conversation_context + mempalace mempalace_add_drawer with a summary of decisions, code changes, and key insights from this session (wing: agent_transcripts).",
         "timeout": 15
       }
     ],
@@ -269,7 +269,7 @@
       {
         "type": "prompt",
         "model": "composer-2",
-        "prompt": "Context compaction is about to occur. Before context is trimmed: (1) Write a workflow_state.md snapshot to ~/.cursor/plans/ capturing current phase, completed tasks, pending tasks, and key decisions so the task survives context loss. (2) Store critical facts in cursor10x-mcp via storeMilestone and storeDecision. (3) Note any in-progress implementation that must resume after compaction.",
+        "prompt": "Context compaction is about to occur. Before context is trimmed: (1) Write a workflow_state.md snapshot to ~/.cursor/plans/ capturing current phase, completed tasks, pending tasks, and key decisions so the task survives context loss. (2) Store critical facts in cursor10x-mcp via storeMilestone and storeDecision. (3) Emergency save to MemPalace: call mempalace_add_drawer with the most critical decisions, architecture choices, and unresolved issues from the current context (wing: agent_transcripts, room: planning) — this preserves verbatim reasoning before it is lost to compaction. (4) Note any in-progress implementation that must resume after compaction.",
         "timeout": 15
       }
     ]

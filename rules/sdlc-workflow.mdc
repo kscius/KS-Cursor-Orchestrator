@@ -1,4 +1,4 @@
----
+﻿---
 description: SDLC workflow types (feature, bugfix, refactor, security, etc.) and canonical phase sequences for scout, intake, and orchestrator
 globs:
 alwaysApply: true

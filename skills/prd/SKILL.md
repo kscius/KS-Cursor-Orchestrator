@@ -1,4 +1,4 @@
----
+﻿---
 name: prd
 description: Generate a structured Product Requirements Document (PRD) as a single source of truth before implementation. Use when the user wants to capture requirements, define a feature formally, write a spec, or produce a PRD. Bridges brainstorming/requirements-gathering to the execution phase.
 ---

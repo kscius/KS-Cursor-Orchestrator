@@ -1,4 +1,4 @@
----
+﻿---
 name: workflow-state
 description: >
   Create and update .cursor/plans/workflow_state.md at each ks-conductor phase

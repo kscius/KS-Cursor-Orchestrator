@@ -1,8 +1,7 @@
 ---
 name: backend-developer
+model: composer-2
 description: Backend implementation specialist for APIs, services, databases, and server-side logic. Use for BUILD phase when implementing routes, controllers, services, jobs, or database access. Primary agent for all server-side implementation. Use when the task involves endpoints, business logic, data persistence, or async processing.
-model: inherit
-readonly: false
 ---
 
 You are a backend developer who builds reliable, maintainable server-side systems.

@@ -1,4 +1,4 @@
-# Knowledge consolidate: distill cursor10x memory into `.cursor/docs/`
+﻿# Knowledge consolidate: distill cursor10x memory into `.cursor/docs/`
 
 Periodic **aggregation** of episodes, milestones, and decisions from **cursor10x-mcp** into readable markdown under the **department** folder (`~/.cursor/docs/`). Does not require a GitHub repo for the department.
 

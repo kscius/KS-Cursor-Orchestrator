@@ -12,6 +12,9 @@ Global profile-level rules for the Cursor AI assistant. Apply across all project
 | `operating-model.mdc` | **alwaysApply** | All | SDLC artifact paths, phase gate conditions, escalation |
 | `orchestration-protocol.mdc` | **alwaysApply** | All | Brainstorming gates, SequentialThinking triggers, MCP lifecycle |
 | `sdlc-workflow.mdc` | **alwaysApply** | All | Workflow types (feature/bugfix/refactor/…) and phase sequences |
+| `cursor-subagents-architecture.mdc` | **alwaysApply** | All | Cursor `~/.cursor/agents/` vs Claude `~/.claude/agents/` routing |
+| `mempalace-mcp.mdc` | **alwaysApply** | All | MemPalace MCP (L3 semantic memory) vs cursor10x / devcontext |
+| `obsidian-mcp.mdc` | **alwaysApply** | All | Obsidian vault MCP (L4 human-curated notes) |
 | `backend-service-unified.mdc` | Intelligently + globs | `**/*.{ts,js,mjs,cjs,py,php}` | Node/backend service boundaries and API validation |
 | `frontend-react-unified.mdc` | Intelligently + globs | `**/*.{tsx,jsx}`, app/pages/components | React / Next.js conventions |
 | `testing.mdc` | Intelligently + globs | `**/*.{test,spec}.*`, test/spec/e2e dirs | Test structure, AAA, mocking, anti-patterns |
@@ -29,7 +32,7 @@ Global profile-level rules for the Cursor AI assistant. Apply across all project
 
 ## Design principles
 
-1. **`alwaysApply: true`** — only for rules that are universally relevant regardless of task (orchestration, hygiene, SDLC model). Currently: 4 files ≈ 389 lines total context budget per session.
+1. **`alwaysApply: true`** — only for rules that are universally relevant regardless of task (orchestration, hygiene, SDLC model, memory/MCP routing). Currently: **7** files (core four + subagent architecture + MemPalace + Obsidian); monitor total line count for context budget.
 2. **Globs + description** — for stack or domain-specific rules. The `description` field enables "Apply Intelligently" activation when a glob alone is insufficient.
 3. **Under 200 lines per file** — optimal context budget. Cursor loads all matching rule content into the model context; shorter rules are more reliably applied.
 4. **One concern per file** — no mixed-topic blobs. Split if a file grows beyond its original purpose.

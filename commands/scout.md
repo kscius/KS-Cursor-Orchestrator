@@ -1,4 +1,4 @@
-#Fast repo reconnaissance with routing recommendation
+﻿#Fast repo reconnaissance with routing recommendation
 
 Perform repo reconnaissance before planning or implementation.
 
@@ -117,7 +117,7 @@ GOALS
    - `write-unit-tests`
    - `humanizer`
    - `reducing-entropy`
-7. **Cursor CLI routing:** If the TASK or file set matches **mechanical batch**, **explicit headless / `agent -p`**, or **very large same-pattern scope** with low contract risk, note that **post-scout** the executor may run **`/agent-dispatch`** or `node <user-profile>/.cursor/hooks/agent-dispatch.js` with **`--cwd`** = workspace root, suggested **`--model`**, and **`--mode ask`** or **`plan`** (unless the user explicitly asked for mutating batch / `--force`). If it does **not** apply, state why. Criteria and guardrails: **`commands/ks-conductor.md`** → section **Cursor CLI (conditional)**; invocation details: **`commands/agent-dispatch.md`**.
+7. **Cursor CLI routing:** If the TASK or file set matches **mechanical batch**, **explicit headless / `agent -p`**, or **very large same-pattern scope** with low contract risk, note that **post-scout** the executor may run **`/agent-dispatch`** or `node <user-profile>/.cursor/hooks/agent-dispatch.js` with **`--cwd`** = workspace root, suggested **`--model`**, and **`--mode ask`** or **`plan`** (unless the user explicitly asked for mutating batch / `--force`). If it does **not** apply, state why. Criteria and guardrails: **`commands/ks-ks-conductor.md`** → section **Cursor CLI (condicional)**; invocation details: **`commands/agent-dispatch.md`**.
 
 CLASSIFICATION SUPPORT
 Based on repo evidence, provide a routing recommendation:
@@ -267,4 +267,4 @@ When Plan mode is requested:
   - reducing-entropy → yes/no + why
 - Risks/constraints
 - Suggested parallelization: [what can run in parallel]
-- **Cursor CLI routing:** `recommended_cli: yes | no` — one-line justification; if **yes**, **run** `node …/hooks/agent-dispatch.js` via **Shell** in this flow (same as **Autonomous execution** above), then document invocation + outcome in the report; `--cwd` = repo root, `--mode ask` or `plan` by default (`--force` only if user requested mutating batch); optional `--files` glob; see `commands/ks-conductor.md` (Cursor CLI conditional) and `commands/agent-dispatch.md`
+- **Cursor CLI routing:** `recommended_cli: yes | no` — one-line justification; if **yes**, **run** `node …/hooks/agent-dispatch.js` via **Shell** in this flow (same as **Autonomous execution** above), then document invocation + outcome in the report; `--cwd` = repo root, `--mode ask` or `plan` by default (`--force` only if user requested mutating batch); optional `--files` glob; see `commands/ks-ks-conductor.md` (Cursor CLI condicional) and `commands/agent-dispatch.md`

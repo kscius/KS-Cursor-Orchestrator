@@ -1,7 +1,7 @@
 ---
 name: performance-engineer
 description: Performance analysis and optimization specialist. Use during PROFILE or BUILD phase to identify bottlenecks, optimize queries, reduce bundle size, or improve rendering performance. Use when the task involves latency, throughput, memory usage, or load capacity. Invoke with /performance-check or when profiling is needed.
-model: inherit
+model: composer-2
 readonly: false
 ---
 

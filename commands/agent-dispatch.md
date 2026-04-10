@@ -1,4 +1,4 @@
-# /agent-dispatch — run Cursor CLI via Node runner (autonomous)
+﻿# /agent-dispatch — run Cursor CLI via Node runner (autonomous)
 
 Use the **Node** runner `hooks/agent-dispatch.js` to invoke **`agent -p`** with retries, JSON logs under `hooks/logs/agent-runs/`, and optional globs. No PowerShell script required.
 
@@ -21,7 +21,7 @@ node "%USERPROFILE%\.cursor\hooks\agent-dispatch.js" --prompt "YOUR_PROMPT" --cw
 ## When to use
 
 - One-shot or batched headless passes when the user wants **`agent -p`** from the IDE via Shell tool.
-- **Orchestrated runs:** When **`/ks-conductor`** or **`/scout`** indicates **Cursor CLI (conditional)** — see **`commands/ks-conductor.md`**.
+- **Orchestrated runs:** When **`/ks-conductor`** or **`/scout`** indicates **Cursor CLI (condicional)** — see **`commands/ks-ks-conductor.md`**.
 - Same entry point as **git pre-commit** (optional) after `git config core.hooksPath` → see **`commands/cli-batch.md`**.
 
 ## Build invocation

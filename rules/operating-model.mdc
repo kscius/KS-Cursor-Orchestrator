@@ -1,4 +1,4 @@
----
+﻿---
 description: Operating model — SDLC role topology, artifact contracts, phase gate conditions, resume paths, and escalation triggers
 globs:
 alwaysApply: true

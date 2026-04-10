@@ -2,6 +2,15 @@
 
 Use this before a release or after editing the global profile.
 
+## 0. Reverse sync (profile → repo)
+
+When the **live profile** is ahead of the bundle and you want the repository to match:
+
+1. Copy `rules/`, `commands/`, `agents/`, `skills/` from `%USERPROFILE%\.cursor\` into `REPO_ROOT\` with **robocopy** using `/E /IS /IT` (no `/MIR`) so repo-only files such as `hooks/README.md` or `commands/README.md` are not deleted.
+2. Copy `hooks\*.js`, `hooks\lib\*`, and `%USERPROFILE%\.cursor\hooks.json` → `REPO_ROOT\hooks\hooks.json`.
+3. **`mcp.json`:** never commit the real file. Regenerate `mcp/mcp.config.example.json` with **secrets and machine paths replaced** by placeholders (`<YOUR_TOKEN>`, `<HOST_PATH_TO_MEMORY_DIR>`, `<OBSIDIAN_VAULT_PATH>`, etc.), then update `mcp/README.md` if new servers were added.
+4. Grep the diff for user-specific paths (`C:\Users\...`) and tokens before committing.
+
 ## 1. Commands and rules
 
 - Compare file names between the repo and `%USERPROFILE%\.cursor\commands` (or `~/.cursor/commands`): repo `.md` files should not be missing globally right after install.

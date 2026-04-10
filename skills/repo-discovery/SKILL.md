@@ -1,4 +1,4 @@
----
+﻿---
 name: repo-discovery
 description: >-
   Phase-1 repo reconnaissance as a standalone skill: stack detection, relevant

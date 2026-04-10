@@ -1,4 +1,4 @@
-# CLI batch: headless Cursor agent over many files
+﻿# CLI batch: headless Cursor agent over many files
 
 Use **Cursor CLI** (`cursor agent` / `agent`) for **non-interactive** batch passes when the IDE orchestrator is the wrong tool (bulk JSDoc, mechanical refactors across globs, scripted hygiene).
 
