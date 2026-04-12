@@ -1,6 +1,13 @@
 ﻿# /agent-dispatch — run Cursor CLI via Node runner (autonomous)
 
+MISSION
+Run **`agent -p`** (or plan/ask modes) headlessly via `hooks/agent-dispatch.js` with retries, structured logs, and safe defaults—so orchestrators (`/ks-conductor`, `/scout`, `/build-full`) can execute CLI batches without hand-waving terminal steps.
+
 Use the **Node** runner `hooks/agent-dispatch.js` to invoke **`agent -p`** with retries, JSON logs under `hooks/logs/agent-runs/`, and optional globs. No PowerShell script required.
+
+RELATED COMMANDS
+- **`/ks-conductor`**, **`/scout`**, **`/build-full`** — when to invoke this runner is defined in **`commands/ks-conductor.md`** → **Cursor CLI (condicional)** and **Headless routing outside chat** (table: `/cli-batch` vs `--config` vs `/parallel`).
+- **`/cli-batch`**, **`/parallel`**, **`/cloud-handoff`** — complementary patterns for batching, worktrees, or cloud agents.
 
 ## Runner path (portable)
 
@@ -21,7 +28,7 @@ node "%USERPROFILE%\.cursor\hooks\agent-dispatch.js" --prompt "YOUR_PROMPT" --cw
 ## When to use
 
 - One-shot or batched headless passes when the user wants **`agent -p`** from the IDE via Shell tool.
-- **Orchestrated runs:** When **`/ks-conductor`** or **`/scout`** indicates **Cursor CLI (condicional)** — see **`commands/ks-ks-conductor.md`**.
+- **Orchestrated runs:** When **`/ks-conductor`** or **`/scout`** indicates **Cursor CLI (condicional)** — see **`commands/ks-conductor.md`**.
 - Same entry point as **git pre-commit** (optional) after `git config core.hooksPath` → see **`commands/cli-batch.md`**.
 
 ## Build invocation
@@ -44,7 +51,7 @@ node "%USERPROFILE%\.cursor\hooks\agent-dispatch.js" --prompt "YOUR_PROMPT" --fi
 - **`--resume <chatId>`**: resume a specific chat session (stateful multi-step runs)
 - **`--continue`**: continue the most recent session (alias for `--resume=-1`)
 - **`--max-retries`**: default `2` (backoff 1s, 2s, 4s)
-- **`--config`**: JSON array of tasks (see `hooks/dispatch-config.example.json`)
+- **`--config`**: JSON array of tasks (see `hooks/dispatch-config.example.json`). Tasks run **sequentially** in file order (one `runDispatch` after another); use multiple parallel Shell invocations or disjoint worktrees if you need concurrent processes.
 - **`--cwd`**: working directory for globs and agent
 - **`--workspace <dir>`**: workspace directory passed to the agent (`--workspace` flag); differs from `--cwd` in that it sets the IDE workspace context rather than the glob/shell cwd
 - **`--sandbox <enabled|disabled>`**: enable agent sandboxing — sandboxed agents request approval only when stepping outside the controlled environment, reducing interruptions ~40% vs unsandboxed runs (see [Cursor blog](https://www.cursor.com/blog/agent-sandboxing)); recommended for unattended batch runs

@@ -1,51 +1,91 @@
-﻿# CLI batch: headless Cursor agent over many files
+﻿# /cli-batch — headless Cursor agent over many files (mechanical batches)
 
-Use **Cursor CLI** (`cursor agent` / `agent`) for **non-interactive** batch passes when the IDE orchestrator is the wrong tool (bulk JSDoc, mechanical refactors across globs, scripted hygiene).
+Use **Cursor CLI** (`cursor agent` / `agent`) for **non-interactive** batch passes when the in-IDE orchestrator is the wrong tool (bulk JSDoc, mechanical refactors across globs, scripted hygiene).
 
-**Autonomous runner (Node, cross-platform):** `hooks/agent-dispatch.js` — retries, logs under `hooks/logs/agent-runs/`, `--config` batch queue (`hooks/dispatch-config.example.json`). From the IDE use **`/agent-dispatch`**. Optional git hook: `git config core.hooksPath` → `.cursor/.githooks` (see `commands/agent-dispatch.md`).
+**Autonomous runner (Node, cross-platform):** `hooks/agent-dispatch.js` — retries, logs under `hooks/logs/agent-runs/`, optional **`--config`** for a **sequential** multi-task JSON queue (`hooks/dispatch-config.example.json`). Prefer **`/agent-dispatch`** for the full flag surface. Optional git hook: `git config core.hooksPath` → `.cursor/.githooks` (see `commands/agent-dispatch.md`).
 
 **Prereqs:** Cursor CLI installed and on `PATH`; optional **`CURSOR_API_KEY`** (see `docs/mcp-profiles.md`).
 
 TASK (required: glob or file list + intent):
 {{args}}
 
-MISSION
+---
+
+## MISSION
+
 1. Confirm **`cursor agent -p`** (or `agent -p`) is available: `cursor agent --help` or `agent --help`.
 2. Resolve the **file set** from TASK (glob or explicit paths) relative to **workspace root**.
 3. Build a **single prompt** that applies the same transformation to each file (or one prompt that lists files and rules).
-4. Prefer the **Node runner** (works on Windows/macOS/Linux without extra scripts):
+4. Run via **`node …/hooks/agent-dispatch.js`** (see **Build invocation** below)—do not hand off copy-paste steps when **Shell** is available.
+5. Capture exit code and log paths; summarize in chat.
+
+---
+
+## RELATED COMMANDS
+
+- **`commands/ks-conductor.md`** — **Cursor CLI (condicional)**, **Headless routing outside chat** (`/cli-batch` vs `/agent-dispatch --config` vs `/parallel`), **PARALLEL EXECUTION STRATEGY**.
+- **`/agent-dispatch`** — full runner flags, `--config` sequential queue, sandbox/cloud.
+- **`/parallel`** — git worktrees + headless agents when you need **real** multi-process isolation (best-of-N).
+
+---
+
+## PREFERRED SKILLS
+
+- `self-validate` — before claiming batch success; quote exit code and logs
+- `repo-discovery` — optional when the repo layout is unknown
+
+---
+
+## PREFERRED SUBAGENTS
+
+- None required for a pure CLI batch. Optional: `explore` if TASK needs help scoping disjoint globs before parallel CLI fan-out.
+
+---
+
+## ESCALATION TRIGGERS
+
+- **Blocked:** `agent` / `cursor agent` not on PATH — state **Blocked: Cursor CLI not installed** with evidence from Shell.
+- **Stop and sequentialize:** User asked for parallel CLI runs but globs/`--cwd` **overlap** on mutating work — refuse parallel mutators; use disjoint paths, `plan`/`ask` first, or one run.
+- **Wrong tool:** Multi-phase SDLC, auth/payments/schema — use **`/ks-conductor`** in-IDE, not bulk CLI alone.
+
+---
+
+## OUTPUT FORMAT
+
+Reply with:
+
+1. **Command(s) run** (verbatim `node …/agent-dispatch.js` line(s) or `--config` path).
+2. **Exit code(s)** and **short stderr** if non-zero.
+3. **Log paths** under `hooks/logs/agent-runs/` when the runner prints them.
+4. **NOT VERIFIED** for anything not observed (e.g. tests not run).
+
+---
+
+## Build invocation
+
+Prefer the **Node runner**:
 
 ```bash
 node "%USERPROFILE%\.cursor\hooks\agent-dispatch.js" --prompt "YOUR_TASK" --files "src/**/*.ts" --model gemini-3-flash --force
 ```
 
-Or batch from a JSON queue:
+Or a **sequential** multi-task queue (not parallel tasks within the JSON):
 
 ```bash
 node "%USERPROFILE%\.cursor\hooks\agent-dispatch.js" --config "%USERPROFILE%\.cursor\hooks\dispatch-config.example.json" --cwd .
 ```
 
-5. Alternative: run from PowerShell manually, non-interactive:
+(Unix: replace paths with `"$HOME/.cursor/hooks/…"`.)
 
-```powershell
-# Example — adjust model/flags per your Cursor CLI version
-$files = Get-ChildItem -Path .\src -Recurse -Filter *.ts | ForEach-Object { $_.FullName }
-$prompt = @"
-For each file below: <YOUR TASK from TASK section>. Only touch listed files.
-Files:
-$($files -join "`n")
-"@
-cursor agent -p $prompt --force --output-format text
-# If your install uses `agent` instead of `cursor agent`, substitute accordingly.
-```
+**Alternative:** raw PowerShell building a file list + `cursor agent -p` — only if the runner is unsuitable; see `commands/agent-dispatch.md`.
 
-6. Capture exit code; paste **stdout/stderr** summary in chat.
-7. **Do not** use CLI for multi-phase SDLC, security-sensitive work, or anything requiring hooks/MCPs/memory (use `/ks-conductor` in-IDE instead).
+---
 
-OPERATING RULES
+## OPERATING RULES
+
 - Never pass secrets in prompts; never commit API keys.
-- If CLI is missing, state **Blocked: Cursor CLI not installed** and suggest manual batch or in-IDE agent.
 - Prefer **`--output-format json`** only when the user needs machine-parseable output.
+- **Do not** use CLI alone for multi-phase SDLC, security-sensitive work, or flows that need hooks/MCPs/session memory — use **`/ks-conductor`** in-IDE instead.
 
 ## Quality bar
 

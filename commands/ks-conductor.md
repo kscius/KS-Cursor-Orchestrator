@@ -118,9 +118,55 @@ Preferred MCPs:
 
 Do not activate optional skills, subagents, or MCPs unless they add clear execution value.
 
+**FALLBACK ROUTING (when preferred tool is unavailable):**
+
+| Preferred | Fallback | Degradation |
+| --------- | -------- | ----------- |
+| `user-cursor10x-mcp` | Store milestones in `workflow_state.md` and chat | Loses cross-session memory; state still persists on disk |
+| `user-devcontext` | Skip context init; rely on cursor10x + manual repo inspection | Loses conversation threading; no learning extraction |
+| `user-Sequentialthinking` | Use inline chain-of-thought reasoning in extended thinking | Loses structured step tracking; reasoning still occurs |
+| `user-context7` | Use `WebSearch` tool or `user-duckduckgo` MCP for library docs | Slower; may get outdated results |
+| `user-semgrep` | Manual security review via `security-auditor` subagent | Loses automated scanning; human-quality review still applies |
+| `user-github` | Use `Shell` with `gh` CLI commands | Equivalent capability if `gh` is installed |
+| `code-reviewer` subagent | Inline self-review using SELF-CHECK PROTOCOL | Lower quality; no independent perspective |
+| `explore` subagent | Direct `Grep` / `Glob` / `Read` from parent | Slower; uses parent context window |
+
+When a preferred tool fails: (1) run `mcp-health-check` skill if the failure is an MCP; (2) log the failure in `workflow_state.md` under Blockers; (3) apply the fallback; (4) note the degradation in the final output.
+
 **DRY — canonical tooling source:** This file (`ks-conductor.md`) is the **canonical** reference for preferred skills, subagents, and MCPs. When `/scout`, `/build-full`, or `/fix-loop` run **as part of a /ks-conductor execution**, inherit tooling choices from here unless the repo forces a narrower set. Update lists here first; align auxiliary commands after.
 
+**RELATED COMMANDS — department graph (what to chain)**
+
+Single entry: **`/ks-conductor`** owns the full pipeline below when you want one invocation end-to-end. Granular slash commands are the **same phases** split out for manual control, automation, or smaller handoffs.
+
+| Phase | Command | Chains to (typical) |
+| ----- | ------- | ------------------- |
+| Ambiguity gate (optional) | `/clarify-task` | → `/intake` or `/scout` with clarified TASK |
+| Intake / brief | `/intake` | → `/scout` or full `/ks-conductor` |
+| Recon | `/scout` | → `/plan` (optional) → `/build-full` |
+| Plan-only | `/plan` | → `/build-full` or feed args into `/ks-conductor` |
+| Build + validate | `/build-full` | → `/verify` |
+| Read-only audit | `/verify` | If RED → `/fix-loop` (not fix inside `/verify`) |
+| Repair loop | `/fix-loop` | → `/verify` when stable |
+| Cursor setup health | `/audit-quality` | → `/optimize-cursor-setup` when improving global config |
+| Headless / batch | `/agent-dispatch`, `/cli-batch` | See **Cursor CLI (condicional)** below; pair with `/parallel` or `/cloud-handoff` when documented there |
+
+Linear flow (standalone commands, not nested inside `/ks-conductor`):
+
+```
+/clarify-task? → /intake → /scout → [/plan] → /build-full → /verify
+                                      ↓ fail
+                                   /fix-loop → … → /verify
+```
+
 **Supporting commands (`/debug-issue`, `/code-review`, `/security-review`, `/write-unit-tests`, `/agent-dispatch`, `/cli-batch`, etc.):** Treat these as **best-effort checklists**. When behavior overlaps with skills or subagents above, **prefer** the skills/subagents and tooling table in this file.
+
+**Satellite commands — skills, subagents, and “parallel commands”**
+
+- **DRY routing:** Other files under `commands/` should **not** copy the full skill/subagent/MCP tables from this file. They should list only **extra** skills/subagents specific to that command and point here for department defaults (**TOOLING PREFERENCE**, **Preferred subagent routing**, **Preferred MCPs**).
+- **Skills vs subagents (autonomy):** **Skills** are applied by **reading** `~/.cursor/skills/**/SKILL.md` and executing the workflow in the current session. **Subagents** are invoked with the **Task** tool (`subagent_type` + prompt)—not by naming them in prose alone.
+- **Parallelism:** Phase order stays sequential (INTAKE → SCOUT → …). **Inside** a phase, fan out with **multiple Task calls in one assistant turn**, **parallel Shell** for disjoint checks, or **CLI** per **Cursor CLI — paralelismo** (disjoint `--cwd`/globs). Slash commands are **not** subprocesses—the agent **follows** each command file’s instructions in one run or chains phases explicitly.
+- **Chaining multiple slash workflows:** To “run `/verify` and `/audit-quality` in parallel,” the executor performs **both** workflows in the same turn when their artifacts and tools do not contend (read-only + read-only), or runs them **sequentially** when they share files or would double-lock resources. Prefer **one** orchestrated pass via **`/ks-conductor`** when the task already spans phases.
 
 ### Cursor CLI (condicional)
 
@@ -139,11 +185,24 @@ Use the Node runner **`agent-dispatch.js`** and slash command **`/agent-dispatch
 **Anti-patterns:** Do not replace MCPs, memory, hooks, or fine-grained review on sensitive surfaces (auth, secrets, schema) with a single CLI pass. Do not invoke if `agent` is not in PATH — declare **Blocked** with evidence. **`SKIP_AGENT=1`** applies to the **git pre-commit hook**, not as a shortcut to skip ks-conductor work unless a real documented blocker exists.
 
 **CLI parallelism (multiple `agent -p` / multiple processes):**
-- **Preferred:** A single Shell invocation with **`--config`** pointing to a multi-task JSON (`hooks/dispatch-config.example.json`) when you want multiple headless batch passes—the runner orchestrates them; review a single log stream.
-- **Multiple `node …/agent-dispatch.js` in parallel (multiple Shell calls):** only if **(a)** globs/`--cwd` or packages are **disjoint**, **(b)** disk/git race risk is low (ideally `--mode ask` / `plan` without conflicting writes), **(c)** the user explicitly requested CLI parallelism or the time savings justify the risk. **Do not** run two mutating CLIs in parallel targeting the same paths or the same lockfile/migration.
+- **Batch queue (single Shell, sequential tasks):** One invocation with **`--config`** and a JSON array (`hooks/dispatch-config.example.json`). The runner executes each task **in order, one after another** (see `hooks/agent-dispatch.js`)—good for staged headless pipelines and a **single** combined log stream; **not** parallel execution of tasks.
+- **True parallelism (multiple OS processes):** Multiple **`node …/agent-dispatch.js`** runs in parallel (multiple Shell calls), or **`/parallel`** worktrees + one dispatch per worktree—only if **(a)** `--cwd`/worktrees/packages are **disjoint**, **(b)** disk/git race risk is low (prefer `--mode ask` / `plan` before overlapping writes), **(c)** the user requested CLI parallelism or the time savings justify the risk. **Do not** run two mutating CLIs in parallel on the **same** tree, lockfile, or migration chain.
 - After any CLI fan-out: consolidate results, resolve conflicts, and run integrated validation (build/tests) as with parallel subagents.
 
 **Canonical references:** `commands/agent-dispatch.md`, `commands/cli-batch.md`, `hooks/agent-dispatch.js`.
+
+### Headless routing outside chat (`/agent-dispatch`, `/cli-batch`, `/parallel`)
+
+Use when work runs **outside** the IDE chat (headless `agent -p`), only if **Cursor CLI (condicional)** trigger conditions above apply.
+
+| Goal | Command / mechanism | Real parallelism? |
+|------|---------------------|-------------------|
+| One mechanical pass over a glob (bulk JSDoc, hygiene) | **`/cli-batch`** → typically one `node …/agent-dispatch.js --prompt … --files …` | Single process unless you split globs intentionally |
+| Several headless passes, fixed order, one log | **`/agent-dispatch`** with **`--config`** JSON | **No** — tasks run **sequentially** |
+| Best-of-N or isolated approaches | **`/parallel`** — git worktrees + optional `agent-dispatch` per worktree (`--cwd` = that worktree) | **Yes** — disjoint directories; prefer `plan`/`ask` before mutating |
+| Disjoint repos or monorepo packages | Parallel Shell: one `node …/agent-dispatch.js` per root with disjoint **`--cwd`** | **Yes** — only if trees do not overlap writes |
+
+**After any fan-out:** merge outputs, reconcile git, run **one** integrated build/test (same merge rule as **PARALLEL EXECUTION STRATEGY** for Task subagents).
 
 ---
 
@@ -152,6 +211,50 @@ Use the Node runner **`agent-dispatch.js`** and slash command **`/agent-dispatch
 Follow **`operating-model.mdc`** for artifact paths, gates, and escalation. At phase boundaries, use the **`phase-handoff`** skill to normalize what is written under `.cursor/plans/`.
 
 **Resume rule:** Before running a pipeline step, check `.cursor/plans/` for the expected artifact (`intake-brief-*`, `scout-*`, `execution-pack-*`, `critic-verdict-*`, `validation-report-*`). If present and still valid for the current TASK, **skip** that step and load the file instead of redoing work.
+
+---
+
+## RESUME PROTOCOL (run before Phase 0 when resuming)
+
+Before starting the normal pipeline, check for evidence of a prior run:
+
+**Step 1 — Detect prior state:**
+1. Read `.cursor/plans/workflow_state.md` if it exists. Extract: current phase, status, completed steps, blockers, artifact paths, devcontext conversationId.
+2. If no `workflow_state.md`, scan `.cursor/plans/` for the newest `scout-*`, `execution-pack-*`, `critic-verdict-*`, `validation-report-*` files matching the current TASK slug.
+
+**Step 2 — Classify resume situation:**
+
+| Evidence found | Action |
+| -------------- | ------ |
+| `workflow_state.md` with COMPLETED status | Compare the TASK summary in the file against the current TASK (semantic match, not exact string). If the same task: announce "Prior run completed — starting fresh." If a different task: ignore prior artifacts and start fresh. |
+| `workflow_state.md` with IN_PROGRESS or BLOCKED | Resume from the recorded phase. Read all referenced artifact files. |
+| Artifact files but no `workflow_state.md` | Reconstruct: the latest artifact determines the furthest completed phase. Resume from the next phase. |
+| No prior artifacts for this TASK | Fresh run — proceed to Phase 0. |
+
+**Step 3 — Reconstruct context:**
+- If devcontext `conversationId` is in `workflow_state.md`, reuse it for `update_conversation_context`.
+- Query `user-cursor10x-mcp` for recent episodes and milestones matching the TASK.
+- Announce: "Resuming from [Phase] — [Status]. Last log: [entry]."
+
+**Step 4 — Validate stale artifacts:**
+- If the scout artifact is >24h old and the TASK involves code that may have changed, re-run SCOUT before BUILD.
+- If the execution-pack references files that no longer exist or have materially changed (check via `git diff` or file inspection), flag the pack as stale and re-PLAN.
+
+---
+
+## WORKFLOW STATE INTEGRATION (mandatory for STANDARD/COMPLEX)
+
+For STANDARD and COMPLEX tasks, maintain `.cursor/plans/workflow_state.md` using the `workflow-state` skill:
+
+- **At INTAKE end:** Create the file with task summary, phase = SCOUT, devcontext conversationId.
+- **At each phase boundary:** Update phase, checkpoint table, and log.
+- **During BUILD:** Update "Current focus" before each major edit block.
+- **On BLOCKED:** Set status = BLOCKED with blocker description.
+- **On CLOSE:** Set status = COMPLETED.
+
+This is **not optional** for STANDARD/COMPLEX — it is the primary recovery mechanism for context compaction and session interruption.
+
+**Non-writable workspace exception:** If the workspace is dotfiles-only or not a project repo, write to `~/.cursor/plans/workflow_state.md` instead. If that path is also not writable, maintain state in chat and cursor10x only — state "workflow_state.md: not written — reason: [reason]."
 
 ---
 
@@ -326,6 +429,32 @@ Memory keys (cursor10x): prefer `[repo or path hint]:[module/feature]:[topic]` f
 
 ---
 
+## CONTEXT BUDGET AWARENESS
+
+Long COMPLEX runs can exhaust the context window before reaching CLOSE. Apply these defensive measures:
+
+**Proactive state saving:**
+- Before any phase expected to produce large output (BUILD with many files, SCOUT on large repos), update `workflow_state.md` and store a cursor10x milestone.
+- After receiving large subagent results, summarize and discard verbose output. Keep only: files changed, validation results, decisions, and blockers.
+
+**Delegation for context conservation:**
+- For COMPLEX tasks with 5+ files, prefer Task subagents over inline implementation. Each subagent has its own context window, preserving the parent's budget for orchestration.
+- Use `run_in_background: true` for non-blocking work (documentation, parallel code review) when the parent doesn't need the result for the immediately next step.
+
+**Context pressure signals (act on any):**
+- You've made more than 15 file edits in the current context.
+- The conversation exceeds ~40 tool calls without compaction.
+- Multiple large file reads (>500 lines each) have occurred.
+- You're in a fix loop at iteration 3+.
+
+**When context pressure is detected:**
+1. Update `workflow_state.md` with full current state.
+2. Store a cursor10x milestone: phase, completed steps, pending steps, key decisions.
+3. Summarize the execution pack status in a compact form.
+4. Consider delegating remaining BUILD work to a Task subagent with a focused handoff (the subagent gets a fresh context window).
+
+---
+
 ## PARALLEL EXECUTION STRATEGY
 
 **Principle:** **Phases stay ordered**; **work inside a phase** can be **parallel** when dependencies allow. Prefer **multiple Task tool calls in the same assistant turn** (several subagents) over serializing independent work. **Inherited model:** leave Task **`model` unset** so subagents use the parent conversation model; set **`model: fast`** only for narrow parallel recon tasks where cost/latency matters; set a stronger explicit model on **one** branch when that branch alone needs it.
@@ -341,7 +470,7 @@ Memory keys (cursor10x): prefer `[repo or path hint]:[module/feature]:[topic]` f
 - Lint + typecheck (independent static checks)—**Shell** in parallel when the environment supports it.
 - Unit tests for **disjoint** modules/packages.
 - Documentation updates + test updates **only when** tests do not depend on doc-only paths and contracts are stable.
-- **Cursor CLI:** prefer **`--config`** multi-task in **one** Shell; see **Cursor CLI — paralelismo** for multiple processes.
+- **Cursor CLI:** **`--config`** = sequential multi-task in **one** Shell; **true** parallel = multiple Shells or worktrees — see **Cursor CLI (condicional)** and **Headless routing outside chat**.
 
 **Must stay sequential:**
 
@@ -477,16 +606,35 @@ Produce:
 ```
 EXECUTION PACK
   objective: [one line]
+  acceptance_criteria_ref: [reference INTAKE acceptance criteria — link or inline]
   files_layers: [paths / areas]
-  parallel_streams: [optional — e.g. none | Stream A: <paths> + <subagent_hint>; Stream B: … when disjoint; drives parallel Task + inherit model]
+  parallel_streams: [optional — see PARALLEL STREAM CONTRACT below]
   implementation_order: [numbered steps; merge/integration step after any parallel_streams]
   validation_manifest: [paste or reference SCOUT VALIDATION MANIFEST]
   validations_required: [lint | typecheck | tests | build | browser | migration — subset that applies]
   key_risks: [list]
   what_not_to_touch: [list]
   executor_checklist: [verifiable items before declaring done]
-  done_criteria: [observable outcomes]
+  done_criteria: [observable outcomes — must trace to acceptance_criteria_ref]
 ```
+
+**PARALLEL STREAM CONTRACT** (when `parallel_streams` is not `none`):
+
+For each stream, specify:
+```
+  Stream [A/B/...]:
+    subagent_hint: [subagent_type]
+    files: [exact paths this stream owns — disjoint from other streams]
+    contract: [what this stream produces — e.g. "API endpoints for /users/*"]
+    acceptance: [stream-level acceptance criteria]
+    integration_points: [shared types, APIs, or files that other streams depend on]
+    merge_order: [which stream lands first if order matters, or "any"]
+```
+
+**Merge protocol after parallel streams:**
+1. Land streams in `merge_order`. If conflicts arise, the stream with integration_points dependencies lands first.
+2. Run integration validation (build + tests) after each merge, not just after the last one.
+3. If merge conflicts touch shared types or API contracts, resolve by re-reading both stream outputs and applying the most complete version.
 
 The narrative plan must still cover:
 - exact files to touch
@@ -582,6 +730,11 @@ Align BUILD/TEST/REVIEW with **SOFTWARE DEPARTMENT — SDLC ROLE MAPPING** where
 PHASE 6 — FIX LOOP
 Run /fix-loop only if validation fails or something remains non-green.
 
+**Pre-fix-loop learning (mandatory before first iteration):**
+1. Query `user-cursor10x-mcp` for past episodes matching the failure pattern. Use `getComprehensiveContext` with a `query` derived from the error (error message, failing test name, or affected module), or `getRecentEpisodes` to scan recent history.
+2. If a prior episode describes the same or similar failure: verify applicability before applying — confirm the same file area, same error signature, and no intervening dependency or structural changes. If still applicable, apply the prior resolution. Log: "Applied known fix from prior session: [episode reference]."
+3. If no prior match or prior fix is stale: proceed with normal diagnosis. After resolution, store the pattern via `recordEpisode` with enough detail for future retrieval (error signature, root cause, fix applied, affected files).
+
 **Normal fix loop (tests, lint, type errors, localized bugs):**
 - **Maximum 5 iterations.** Each iteration **must** log (in thread + `recordEpisode` per **pre-fix-loop**): what was tried, what failed, what changed.
 - After **5** without green: summarize attempts and root-cause hypotheses → `storeDecision` blocker → **escalate to user** with concrete next steps (**USER ESCALATION TRIGGERS** #5).
@@ -642,6 +795,20 @@ Do not stop until one of these is true:
 
 Before final stop: run **CONTEXT PERSISTENCE PROTOCOL** + **MEMORY INTEGRATION** completion (finalize devcontext + cursor10x milestone).
 
+ACCEPTANCE CRITERIA THREADING
+Thread acceptance criteria from INTAKE through every phase to prevent drift between "what was asked" and "what was built":
+
+**INTAKE** → Write acceptance criteria in `intake-brief-*.md`. Each criterion must be observable and testable.
+
+**PLAN** → The EXECUTION PACK `done_criteria` must map back to INTAKE acceptance criteria. If the plan changes scope, explicitly note which acceptance criteria are affected and why.
+
+**CRITIC** → Reviewers must verify: does the plan address every acceptance criterion from INTAKE? If any are missing, flag as a CRITIC finding.
+
+**VERIFY** → After validation commands pass, walk through each INTAKE acceptance criterion:
+- [criterion] → MET (evidence: test X, behavior Y) | NOT MET (reason) | NOT APPLICABLE (changed scope)
+
+**Output** → The final output must include an acceptance criteria checklist showing status per criterion. Do not declare CLOSE with unaddressed criteria unless explicitly acknowledged.
+
 REQUIRED OUTPUT FORMAT
 **Verbosity by classification:**
 - **SIMPLE:** One compact block: classification + EARLY BAILOUT result (if any) + tool summary + files touched + validations + risks (no redundant phase essays).
@@ -678,6 +845,8 @@ Return the whole execution in this structure (STANDARD/COMPLEX; SIMPLE may colla
 6. BUILD result
 - EXECUTION PACK checklist:
   - [item] → completed / adjusted / discarded
+- Acceptance criteria status:
+  - [criterion from INTAKE] → MET / NOT MET / N/A
 - Files touched
 - Changes made
 - Validations run and result
@@ -788,6 +957,29 @@ When delegating to a subagent, always provide this structured context:
 
 **Model selection (Task tool):** Cursor may ignore `model:` in subagent file frontmatter. **Default for parallel fan-out:** **omit** `model` so subagents **inherit** the parent chat model. Pass **`model: fast`** for shallow parallel tasks when appropriate. Pass a stronger/explicit `model` only when a **single** branch needs it. Do not rely on frontmatter alone for critical model choice.
 
+SUBAGENT OUTPUT VALIDATION
+When a Task subagent returns, verify its output before incorporating into the pipeline:
+
+**Mandatory checks (all subagent types):**
+1. **Completeness**: Did the subagent address all items in the handoff's "Expected Deliverables"?
+2. **Scope fidelity**: Did it only modify files listed in the handoff's "Files" section? If it touched additional files, is the deviation justified?
+3. **Evidence over claims**: Does the output include actual command output (test results, lint output) or only claims? Treat unverified claims as unvalidated.
+
+**Type-specific checks:**
+
+| Subagent type | Additional verification |
+| ------------- | ---------------------- |
+| `explore` / recon | Did it find the files/patterns asked for? Are file paths real? |
+| `frontend-developer` / `backend-developer` / `fullstack-developer` | Were validation commands (lint/typecheck/tests) actually run? Verify from output. |
+| `code-reviewer` / `security-auditor` / `architect-reviewer` | Is the verdict explicit (APPROVED/CAUTION/REWORK)? Are findings actionable? |
+| `debugger` | Is a root cause identified with evidence (stack trace, log, repro)? |
+| `qa-expert` | Were test scenarios from the EXECUTION PACK actually covered? |
+
+**When validation fails:**
+- If completeness fails: resume the subagent with the missing deliverables, or handle inline.
+- If scope was violated: inspect the extra changes for correctness before accepting.
+- If evidence is missing: re-run the specific validation command inline to verify.
+
 SELF-CHECK PROTOCOL
 Before declaring any phase complete, run these checks:
 
@@ -815,11 +1007,13 @@ Escalation tiers for **normal** fix iterations:
 - Try an alternative implementation path
 - Use `user-Sequentialthinking` if not already used for this stall
 
-**Tier 2 (after 3 failed iterations):**
-- Pause; document attempts, failures, root cause
+**Tier 2 (after 3 failed iterations — operating-model gate):**
+- **Stop and document** per `operating-model.mdc` escalation trigger
 - Classify blocker: architectural / environmental / scope / dependency / unknown
+- Persist attempts and root-cause hypotheses via `storeDecision`
+- **Resume only if** the analysis reveals a concrete new approach not yet tried; otherwise escalate
 
-**Tier 3 (after 5 failed iterations — hard cap for normal fixes):**
+**Tier 3 (after 5 failed iterations — hard cap):**
 - **Mandatory stop** per **USER ESCALATION TRIGGER** #5
 - Full failure report; persist blocker; do NOT continue without user direction
 

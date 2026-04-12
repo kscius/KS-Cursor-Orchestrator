@@ -1,7 +1,7 @@
 ---
 name: qa-expert
 description: Quality assurance specialist for comprehensive test strategy, coverage analysis, and quality metrics. Use during TEST phase to evaluate plans and implementations for test coverage. Use when asked for a QA strategy, test audit, or pre-release quality gate. Works alongside test-runner for execution.
-model: composer-2
+model: composer-2-fast
 readonly: true
 ---
 

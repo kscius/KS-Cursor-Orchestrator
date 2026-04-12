@@ -133,10 +133,14 @@ User input or access needed before safe execution.
 
 ---
 
-## PREFERRED TOOLS
+## PREFERRED SKILLS
 
-**Skills:** `brainstorming`, `requirements-gathering`, `game-changing-features` (strategy asks)
+`brainstorming`, `requirements-gathering`, `game-changing-features` (strategy asks). Full department defaults: **`commands/ks-conductor.md`** → **TOOLING PREFERENCE**.
 
-**MCPs:** `user-devcontext`, `user-cursor10x-mcp`, `user-Sequentialthinking`
+## PREFERRED MCPS
 
-**Subagents:** None required for intake; delegate reconnaissance to `/scout` after this command.
+`user-devcontext`, `user-cursor10x-mcp`, `user-Sequentialthinking`
+
+## PREFERRED SUBAGENTS
+
+None required for intake; delegate reconnaissance to **`/scout`** after this command.

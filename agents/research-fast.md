@@ -1,7 +1,7 @@
 ---
 name: research-fast
 description: Fast parallel research agent for documentation lookups, library API discovery, and web synthesis. Use during SCOUT or PLAN when you need to check multiple sources simultaneously without blocking the main conversation. Prefer over sequential web searches for known, bounded questions.
-model: composer-2
+model: composer-2-fast
 readonly: true
 ---
 

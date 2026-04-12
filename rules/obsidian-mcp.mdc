@@ -9,14 +9,17 @@ alwaysApply: true
 
 The `obsidian` MCP server exposes the user's Obsidian vault as a readable/writable knowledge base. This is **human-authored content** — notes, decisions, research, and documentation written intentionally by the user. It complements the AI-generated memory layers.
 
-**Vault path:** set in `mcp.json` as the last argument to `mcp-obsidian` (e.g. `<OBSIDIAN_VAULT_PATH>`). Do not commit real paths in shared repos.
+**Vault path:** `C:\Users\mitza\OneDrive\Documentos\Obsidian Vault`
 
-**Vault structure** (example — adapt to your vault):
+**Vault structure** (top-level):
 ```
-Cursor/          → Tooling and editor notes (optional)
-Projects/        → Per-project notes
-Personal/        → Personal notes
-Welcome.md       → Vault landing page
+Cursor/         → Cursor setup notes, rules rationale, MCP decisions
+HumanSoftware/  → Human-facing software projects
+MagicTheGathering/ → MTG commander analysis notes
+Personal/       → Personal notes
+Sertevia/       → Sertevia project documentation
+SoulGate/       → SoulGate project documentation
+Welcome.md      → Vault landing page
 ```
 
 ---

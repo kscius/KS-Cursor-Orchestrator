@@ -41,6 +41,9 @@ mempalace_search("cursor rules refactor decision")
 ### `mempalace_status`
 Call at **session start** to load L0 identity + L1 critical facts (~170 tokens). Gives the AI its world context before the first user message. Also called when you need to understand the palace structure.
 
+### `mempalace_get_aaak_spec`
+Optional. Returns the AAAK dialect specification (compressed memory format). Use when implementing or debugging code that reads/writes AAAK, or when the model needs the full format contract. For normal sessions, `mempalace_status` is enough (it surfaces the protocol summary).
+
 ### `mempalace_add_drawer`
 Call to save important content to the palace:
 - At session end when `stop` hook fires and meaningful work occurred
@@ -61,8 +64,11 @@ Use the knowledge graph for temporal entity relationships:
 - `mempalace_kg_timeline`: chronological story of a project or entity
 - `mempalace_kg_invalidate`: when something that was true stops being true (e.g., switched frameworks)
 
-### `mempalace_traverse` / `mempalace_find_tunnels`
-Use for cross-wing discovery — finding the same topic (e.g., "auth") across different wings (cursor-setup, different projects).
+### `mempalace_traverse` / `mempalace_find_tunnels` / `mempalace_graph_stats`
+Use for cross-wing discovery — finding the same topic (e.g., "auth") across different wings (cursor-setup, different projects). `mempalace_graph_stats` summarizes connectivity across the palace graph.
+
+### `mempalace_kg_stats`
+Optional — high-level counts and health of the temporal knowledge graph (SQLite).
 
 ### `mempalace_diary_write` / `mempalace_diary_read`
 Use for specialist agent memory within a session. Not needed for general use.
@@ -89,7 +95,8 @@ wing_agent_transcripts   → all past AI conversations
 After a significant session, mine new transcripts to keep the palace current:
 
 ```powershell
-$env:PYTHONUTF8=1; py -m mempalace mine "$env:USERPROFILE\.cursor\projects\<your-project>\agent-transcripts" --mode convos --wing agent_transcripts
+$env:PYTHONUTF8=1
+& "C:\Users\mitza\.cursor\venvs\mempalace\Scripts\python.exe" -m mempalace mine "C:\Users\mitza\.cursor\projects\c-Users-mitza-cursor\agent-transcripts" --mode convos --wing agent_transcripts
 ```
 
 Only new files are added (existing drawers are skipped automatically).
@@ -100,5 +107,34 @@ Only new files are added (existing drawers are skipped automatically).
 
 - Always use **raw mode** (the default) — AAAK compression trades recall (84.2%) for density. Not worth it.
 - MemPalace is **local only** — no data leaves the machine.
-- The palace lives at `%USERPROFILE%\.mempalace\palace` (default; configurable via MemPalace).
-- Call `mempalace_status` rather than other tools to get the full AAAK spec and memory protocol on demand.
+- The palace lives at `C:\Users\mitza\.mempalace\palace`.
+- For a **session orientation** bundle (L0/L1 + palace overview), call `mempalace_status`. For the **full AAAK format contract** (read/write compressed memories), call `mempalace_get_aaak_spec`.
+
+---
+
+## Runtime (this setup) — MemPalace 3.1.0
+
+The Cursor MCP server uses a **dedicated venv** (not Python 3.14):  
+`C:\Users\mitza\.cursor\venvs\mempalace\Scripts\python.exe` — **Python 3.12** + **mempalace 3.1.0** (ChromaDB pinned by upstream to `>=0.5,<0.7`).
+
+**Upgrade MemPalace in place:**
+
+```powershell
+& "C:\Users\mitza\.cursor\venvs\mempalace\Scripts\python.exe" -m pip install --upgrade "mempalace==3.1.0"
+```
+
+Pin file for reference: `~/.cursor/requirements-mempalace-mcp.txt`.
+
+**Why not Python 3.14 for MCP:** ChromaDB 0.6.x (required by mempalace 3.1.x) does not import cleanly on 3.14; the venv uses the [python.org](https://www.python.org/) 3.12 install.
+
+Upstream: [milla-jovovich/mempalace](https://github.com/milla-jovovich/mempalace) — v3.1.0 release notes cover security fixes, MCP validation, SQLite/WAL, KG fixes, etc.
+
+**CLI** (`mempalace mine`, `mempalace status`, …): run with the same venv Python or add that `Scripts` folder to PATH so you stay on the same version as the MCP.
+
+**Check for newer releases (no upgrade until PyPI shows a version above the pin):**
+
+```powershell
+& "C:\Users\mitza\.cursor\venvs\mempalace\Scripts\python.exe" -m pip index versions mempalace
+```
+
+Compare with [GitHub Releases](https://github.com/milla-jovovich/mempalace/releases). When a new stable `3.x` appears, update `~/.cursor/requirements-mempalace-mcp.txt`, reinstall into the venv, restart the MemPalace MCP in Cursor, and refresh MCP tool descriptors if Cursor does not pick up new tools automatically.

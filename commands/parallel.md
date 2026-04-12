@@ -10,6 +10,27 @@ isolated environment. This command structures the setup, execution, and comparis
 TASK:
 {{args}}
 
+MISSION
+Run **best-of-N** attempts in **isolated git worktrees** (or equivalent isolated CLI passes), compare results against explicit success criteria, merge the winning approach, and leave the repo validated.
+
+RELATED COMMANDS
+- **`commands/ks-conductor.md`** — **RELATED COMMANDS — department graph**, **PARALLEL EXECUTION STRATEGY**, **Cursor CLI (condicional)**, **Headless routing outside chat** (when using multiple `agent-dispatch` processes vs a single `--config` **sequential** queue).
+- **`/agent-dispatch`**, **`/cli-batch`** — headless batches; use **disjoint** `--cwd` / worktrees when running multiple CLI processes at once. **`--config`** does not run tasks in parallel—use multiple Shells or worktrees for real concurrency.
+- **`/verify`** — after merging the winner.
+
+PREFERRED SKILLS
+- `self-validate` — evidence-backed comparison before declaring a winner
+- `phase-handoff` — when this run is a phase inside a larger `/ks-conductor` execution
+
+PREFERRED SUBAGENTS
+- `best-of-n-runner` — isolated parallel attempts when using the dedicated worktree pattern
+- `explore` — optional shallow recon per approach when scopes differ
+- `code-reviewer` or `qa-expert` — integration gate after merge (optional)
+
+ESCALATION TRIGGERS
+- Multiple approaches would mutate the **same** migrations, lockfiles, or shared critical paths **without** worktree isolation → **stop**; require isolation or sequential runs.
+- `agent` CLI or git worktrees unavailable → document **BLOCKED**; fall back to **sequential** Task subagents in one session (weaker isolation, same repo).
+
 ## WHEN TO USE
 
 Use `/parallel` when:

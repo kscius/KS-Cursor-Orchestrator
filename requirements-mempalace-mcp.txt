@@ -1,0 +1,4 @@
+# MemPalace MCP — pin for ~/.cursor/venvs/mempalace (Python 3.12).
+# Install: ...\venvs\mempalace\Scripts\python.exe -m pip install -r requirements-mempalace-mcp.txt
+# Before bumping: python -m pip index versions mempalace  &&  https://github.com/milla-jovovich/mempalace/releases
+mempalace==3.1.0

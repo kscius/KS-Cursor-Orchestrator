@@ -35,7 +35,7 @@ Alternatively, add servers one by one in **Cursor → Settings → MCP** using t
 | **exa** | `EXA_API_KEY` from [Exa](https://exa.ai/). |
 | **filesystem** | One or more allowed root paths (replace `<ALLOWED_ROOT_DIRECTORY>`). **Use a narrow path** (e.g. project root), not a full drive, unless you accept the risk. |
 | **mtg-commander-analyzer** | Absolute path to your clone of the MCP server repo (Windows `cmd` example; on macOS/Linux use a `sh -c` style command or Cursor’s equivalent). |
-| **mempalace** | `python` on `PATH` (or set `command` to your Python executable). Install the `mempalace` package; see [`../rules/mempalace-mcp.mdc`](../rules/mempalace-mcp.mdc). |
+| **mempalace** | Replace `<MEMPALACE_PYTHON_EXE>` with your Python (commonly `%USERPROFILE%\.cursor\venvs\mempalace\Scripts\python.exe` on Windows when using the pinned venv). Install the `mempalace` package; pin file: [`../requirements-mempalace-mcp.txt`](../requirements-mempalace-mcp.txt); see [`../rules/mempalace-mcp.mdc`](../rules/mempalace-mcp.mdc). |
 | **obsidian** | Path to your Obsidian vault directory (`<OBSIDIAN_VAULT_PATH>` as the last `npx` argument). |
 
 ## Prerequisites

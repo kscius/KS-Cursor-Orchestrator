@@ -152,6 +152,7 @@ ks-cursor-orchestrator/
 │   ├── sync-checklist.md
 │   └── skills-cursor-not-in-repo.md
 ├── AGENTS.md             # Copy to ~/.cursor/AGENTS.md (global agent defaults)
+├── requirements-mempalace-mcp.txt  # Pin for MemPalace MCP venv (copy to ~/.cursor/ alongside AGENTS.md if you use that layout)
 ├── README.md
 ├── LICENSE
 ├── CONTRIBUTING.md

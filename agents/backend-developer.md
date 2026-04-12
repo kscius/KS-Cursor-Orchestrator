@@ -1,6 +1,6 @@
 ---
 name: backend-developer
-model: composer-2
+model: composer-2-fast
 description: Backend implementation specialist for APIs, services, databases, and server-side logic. Use for BUILD phase when implementing routes, controllers, services, jobs, or database access. Primary agent for all server-side implementation. Use when the task involves endpoints, business logic, data persistence, or async processing.
 ---
 

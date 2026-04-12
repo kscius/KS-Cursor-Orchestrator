@@ -223,7 +223,7 @@
       }
     },
     "mempalace": {
-      "command": "python",
+      "command": "<MEMPALACE_PYTHON_EXE>",
       "args": [
         "-m",
         "mempalace.mcp_server"

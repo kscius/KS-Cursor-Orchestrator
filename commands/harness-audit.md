@@ -29,6 +29,13 @@ AUDIT CHECKLIST
 - [ ] Commands follow consistent format
 - [ ] No orphaned skills (installed but never referenced)
 
+PREFERRED SKILLS
+- `audit-quality` — overlap in purpose; use this command for deeper harness/orchestrator checks
+- `self-validate` — close
+
+PREFERRED SUBAGENTS
+- `explore` — optional when scanning very large `commands/` or `skills/` trees
+
 OUTPUT FORMAT
 - Configuration summary:
   - Commands: [N] installed

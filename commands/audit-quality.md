@@ -15,7 +15,7 @@ When no args are provided, audit ALL categories. When args specify a category (e
 
 ## EVALUATION CRITERIA
 
-### 1. Skills (`~/.cursor/skills/`)
+### 1. Skills (`C:\Users\mitza\.cursor\skills\`)
 
 Score each skill on:
 
@@ -25,7 +25,7 @@ Score each skill on:
 | **Token efficiency** | HIGH | SKILL.md < 150 lines; verbose content in `references/` |
 | **On-demand note** | HIGH | File starts with `> **On-demand loading**:` or equivalent |
 | **Progressive disclosure** | MEDIUM | Metadata → overview → references pattern followed |
-| **No duplication** | MEDIUM | Skill does not duplicate another skill in `~/.cursor/skills/` |
+| **No duplication** | MEDIUM | Skill does not duplicate another skill in `C:\Users\mitza\.cursor\skills\` |
 | **References present** | LOW | `references/` or `examples/` directory exists when needed |
 
 Scoring:
@@ -48,7 +48,7 @@ Score each rule on:
 
 Scoring: same GREEN / YELLOW / RED thresholds as skills.
 
-### 3. Commands (`~/.cursor/commands/`)
+### 3. Commands (`C:\Users\mitza\.cursor\commands\`)
 
 Score each command on:
 
@@ -59,15 +59,17 @@ Score each command on:
 | **Escalation triggers** | MEDIUM | ESCALATION TRIGGERS or blockers defined |
 | **Output format** | MEDIUM | OUTPUT FORMAT section present |
 | **Skill references** | LOW | PREFERRED SKILLS section lists relevant skills |
+| **Autonomy alignment** | MEDIUM | States *how* work runs: **skills** → Read `SKILL.md` and apply in-session (not “user opens skill”); **subagents** → **Task** tool with `subagent_type`; optional line pointing to **`ks-conductor.md`** → **TOOLING PREFERENCE** for full tables (DRY) |
+| **Parallel / chain clarity** | LOW | If the command chains or fans out work, references **`ks-conductor.md`** → **RELATED COMMANDS — department graph** and/or **PARALLEL EXECUTION STRATEGY** / **Cursor CLI — paralelismo** instead of inventing a second graph |
 
-### 4. MCPs (`~/.cursor/mcp.json`)
+### 4. MCPs (`C:\Users\mitza\.cursor\mcp.json`)
 
 Score the MCP configuration on:
 
 | Criterion | Pass condition |
 |-----------|----------------|
 | **Non-essential disabled** | Hobby/low-value MCPs have `"enabled": false` |
-| **Profile documented** | All servers are documented in `mcp/README.md` (overview + placeholders) |
+| **Profile documented** | All servers are documented in `docs/mcp-profiles.md` |
 | **No duplicate coverage** | No two MCPs serve the same purpose (e.g., two memory MCPs without clear role separation) |
 | **Tokens not in git** | `mcp.json` excluded from version control |
 
@@ -84,6 +86,13 @@ Score the MCP configuration on:
    - Priority 3: Quick wins (simple fixes with high impact)
 5. Do NOT make edits — output a plan only.
 6. Count: how many GREEN, YELLOW, RED per category.
+
+PREFERRED SKILLS
+- `repo-discovery` — optional large-inventory pass
+- `self-validate` — before closing the audit report
+
+PREFERRED SUBAGENTS
+- None required (read-only audit). Optional: `explore` when enumerating hundreds of paths.
 
 ---
 

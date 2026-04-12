@@ -25,6 +25,14 @@ PREFERRED MCPS
 - Base: `user-cursor10x-mcp`, `user-devcontext`
 - Conditional: `user-semgrep` for security checks
 
+PREFERRED SKILLS
+- `self-validate` — before declaring GREEN when claims depend on evidence
+- `sdlc-checkpoint` — optional gate if verifying a phase boundary
+
+PREFERRED SUBAGENTS
+- `qa-expert` — large or cross-cutting validation strategy
+- `test-runner` — when the repo’s test automation should be driven mechanically
+
 OUTPUT FORMAT
 - Validation commands detected: [list with source]
 - Results:
