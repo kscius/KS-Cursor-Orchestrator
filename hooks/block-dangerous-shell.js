@@ -35,22 +35,28 @@ const BLOCKED_PATTERNS = [
   />\s*\/dev\/null\s+2>&1.*rm/,
 ];
 
+/** Deploy/publish — ask user (merged from legacy prompt-hook matcher list). */
 const ASK_PATTERNS = [
   /npm\s+publish/,
   /npx\s+.*deploy/,
-  // git push removed: protect-branch.js handles protected branches; force-push to main/master
-  // is already in BLOCKED_PATTERNS; non-protected feature branch pushes should be autonomous.
   /docker\s+push/,
-  /kubectl\s+apply/,
-  /kubectl\s+delete/,
-  /terraform\s+apply/,
-  /terraform\s+destroy/,
-  // Additional cloud/infra deploy patterns
+  /kubectl\s+(apply|delete|rollout)/,
+  /helm\s+(install|upgrade)/,
+  /terraform\s+(apply|destroy)/,
+  /pulumi\s+(up|destroy)/,
   /fly\s+deploy/,
   /vercel\s+.*--prod/,
   /heroku\s+push/,
   /ansible-playbook/,
   /aws\s+s3\s+(rm|delete)/i,
+  /gsutil\s+rm/i,
+  /az\s+storage/i,
+  /serverless\s+deploy/i,
+  /cdk\s+deploy/i,
+  /gcloud\s+.*deploy/i,
+  /firebase\s+deploy/i,
+  /railway\s+up/i,
+  /render\s+deploy/i,
 ];
 
 async function main() {

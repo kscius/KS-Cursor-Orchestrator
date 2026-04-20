@@ -8,6 +8,14 @@ const DEBUG_PATTERNS = [
   { pattern: /\bFIXME\b/i, label: "FIXME" },
 ];
 
+/** Path-only hint — replaces LLM “critical file” prompt hooks. */
+function isHighSignalPath(filePath) {
+  const p = (filePath || "").replace(/\\/g, "/").toLowerCase();
+  return /(\/migrations\/|[\\/]migrate[\\/]|migration|schema\.prisma|schema\.sql|[\\/]\.env|[\\/]auth[\\/]|[\\/]security[\\/]|credentials|kubeconfig)/i.test(
+    p
+  );
+}
+
 const SECRET_PATTERNS = [
   { pattern: /['"]sk[-_][a-zA-Z0-9]{20,}['"]/, label: "API key (sk-*)" },
   {
@@ -54,6 +62,15 @@ async function main() {
         warnings.push(`Debug code: ${label} in ${filePath}`);
       }
     }
+  }
+
+  if (warnings.length === 0 && isHighSignalPath(filePath)) {
+    process.stdout.write(
+      JSON.stringify({
+        additional_context: `[edit-guard] High-signal path: ${filePath} — confirm requested scope.`,
+      }) + "\n"
+    );
+    return;
   }
 
   if (warnings.length > 0) {

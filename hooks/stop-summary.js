@@ -18,14 +18,10 @@ const METRICS_FILE = path.join(LOG_DIR, "session-metrics.json");
 
 /** loop_count is 0-indexed: 0 = first stop, 1 = first retry, 2 = second retry … */
 const STRATEGIES = [
-  /* loop_count 0 — first stop, completed or error */
   null,
-  /* loop_count 1 — first retry: gentle nudge */
-  "Re-analyze the root cause from scratch. The previous approach may be fundamentally wrong. Check if the test, not the code, is the problem.",
-  /* loop_count 2 — second retry: change path */
-  "Try an alternative implementation path. If the same approach failed twice, the architecture may need rethinking. Use Sequential Thinking to reason about this.",
-  /* loop_count 3 — third retry: escalate */
-  "Hard stop recommended. Document everything tried, classify the blocker (architectural / environmental / scope / dependency), and propose alternative approaches to the user.",
+  "Retry: read the exact error output; fix root cause before another attempt.",
+  "Retry: try a different approach or narrow scope; same failure twice suggests wrong hypothesis.",
+  "Stop: list what was tried, the blocker type, and ask the user for a decision.",
 ];
 
 async function main() {

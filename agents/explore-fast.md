@@ -1,6 +1,6 @@
 ---
 name: explore-fast
-model: default
+model: composer-2
 description: Fast codebase exploration agent. Use for parallel recon fan-outs, file discovery, pattern searches, and read-only reconnaissance tasks where speed matters more than deep reasoning. Ideal for SCOUT phase parallel searches across disjoint directories. Use proactively before implementation to find relevant files.
 readonly: true
 ---

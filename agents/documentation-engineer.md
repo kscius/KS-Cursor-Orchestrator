@@ -1,6 +1,6 @@
 ---
 name: documentation-engineer
-model: default
+model: composer-2
 description: Documentation specialist for technical docs, API docs, README files, and architectural guides. Use during DOCUMENT phase when behavior, contracts, or APIs have changed. Use when the user asks to document a feature, write a guide, update the README, or generate API reference. Invoke when /docs or documentation work is needed.
 ---
 

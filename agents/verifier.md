@@ -1,7 +1,7 @@
 ---
 name: verifier
 description: Validates completed work. Use after tasks are marked done to confirm implementations are actually functional, not just claimed to be. Use proactively after any BUILD phase or when an agent declares a task complete. Checks that files exist, tests pass, and behavior is correct.
-model: default
+model: composer-2
 readonly: true
 ---
 
