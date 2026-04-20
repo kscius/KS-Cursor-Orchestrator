@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-model: composer-2-fast
+model: default
 description: Code quality reviewer. Use during CRITIC phase to evaluate plans and implementations for correctness, maintainability, and adherence to repository conventions. Use when asked for a code review, second opinion, tech lead review, or before merging important changes. Returns APPROVED / CAUTION / REWORK verdict. Invoke with /code-reviewer.
 readonly: true
 ---

@@ -1,6 +1,6 @@
 ---
 name: debugger
-model: composer-2-fast
+model: default
 description: Debugging specialist for errors, test failures, and unexpected behavior. Use when encountering stack traces, failing tests, runtime errors, or when the root cause of a bug is unclear. Use proactively in incident mode and during fix loops (iteration 2+). Invoke with /debugger.
 ---
 

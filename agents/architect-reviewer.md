@@ -1,6 +1,6 @@
 ---
 name: architect-reviewer
-model: composer-2-fast
+model: default
 description: Architecture and design reviewer. Use for COMPLEX tasks during CRITIC phase when evaluating structural decisions, service boundaries, data models, API contracts, or cross-cutting concerns. Use when the user asks for a staff-engineer or architectural review. Returns APPROVED / CAUTION / REWORK verdict. Invoke with /architect-reviewer.
 readonly: true
 ---

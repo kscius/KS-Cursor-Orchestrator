@@ -1,6 +1,6 @@
 ---
 name: frontend-developer
-model: composer-2-fast
+model: default
 description: Frontend implementation specialist for React, Vue, Angular, and Next.js. Use for BUILD phase when implementing UI components, pages, state management, or frontend features. Primary agent for all client-side implementation work. Use when the task involves components, styling, routing, or browser-side logic.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: devops-engineer
-model: composer-2-fast
+model: default
 description: DevOps and infrastructure specialist for CI/CD pipelines, containerization, deployment automation, and observability. Use for BUILD phase when implementing infrastructure changes, deployment workflows, Docker configs, or CI pipeline improvements. Use when the task involves environments, pipelines, or operational concerns.
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: test-runner
 description: Test automation specialist. Use proactively after code changes to run tests and fix failures. Use when tests are failing, when new features need test coverage, or when you want to validate behavior before marking work complete. Automatically detects test runner from repo evidence.
-model: composer-2-fast
+model: default
 readonly: false
 ---
 
