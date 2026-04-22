@@ -121,6 +121,40 @@ When the **`sdlc-checkpoint`** skill is available, use it at **orchestrator phas
 
 ---
 
+## Subagent output contracts
+
+Every subagent spawned via the Task tool **MUST** structure its final response to include:
+
+```
+**Status:** DONE | PARTIAL | BLOCKED
+**Artifacts:** [files created or modified — or NONE]
+**Issues:** [problems found or outstanding — or NONE]
+**Next step:** [recommended parent action — or NONE]
+**Confidence:** HIGH | MEDIUM | LOW
+```
+
+**Parent agent behavior by status:**
+
+| Status | Action |
+| ------ | ------ |
+| `DONE` | Proceed to next phase |
+| `PARTIAL` | Log gap in `workflow_state.md`; decide: continue or enter fix loop |
+| `BLOCKED` | Surface blocker to user; do NOT auto-continue |
+
+**Critic subagents** (code-reviewer, security-auditor, architect-reviewer, tech-lead-review) MUST also include:
+
+```
+**Verdict:** APPROVED | CAUTION | REWORK
+```
+
+- `APPROVED` → parent proceeds
+- `CAUTION` → parent must document the risk in workflow state before proceeding
+- `REWORK` → parent must not proceed to BUILD; must revise plan or fix identified issues
+
+**Parent validation rule:** Before advancing any phase that consumes a subagent's output, verify `Status` is not `BLOCKED` and `Verdict` (when present) is not `REWORK`. A missing output contract is treated as `PARTIAL`.
+
+---
+
 ## Model routing (parent / Task tool)
 
 When the **Task** tool exposes a `model` parameter (or equivalent), prefer this routing. **Subagent YAML `model:` is not authoritative** (see above).

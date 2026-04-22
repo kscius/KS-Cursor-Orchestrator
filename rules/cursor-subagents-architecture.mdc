@@ -108,3 +108,28 @@ When the `Task` tool `model` parameter is used, it overrides the frontmatter `mo
 - Do not use `is_background: true` for agents that gate the next phase
 - Do not assign `model: fast` to security or architecture agents
 - Do not set `readonly: true` for agents that need to write files to do their job
+
+---
+
+## Task-type routing table
+
+First-pass routing guide when selecting an agent for a delegated task.
+
+| Task type | First-choice agent | Escalate to |
+| --------- | ------------------ | ----------- |
+| Frontend UI / component | `frontend-developer` | `react-specialist` for complex state or migration |
+| Backend API / service | `backend-developer` | `microservices-architect` for distributed systems |
+| Full-stack feature | `fullstack-developer` | Split when layers are clearly independent |
+| Bug investigation | `debugger` | `error-detective` for cascade or intermittent failures |
+| Code quality review | `code-reviewer` | `security-auditor` when security surfaces are touched |
+| Database / query | `database-optimizer` | `database-administrator` for HA, replication, or migrations |
+| Infrastructure / CI | `devops-engineer` | `kubernetes-specialist` or `terraform-engineer` for IaC |
+| Security review | `security-auditor` | `penetration-tester` for authorized active testing |
+| Codebase exploration | `explore` | `explore-fast` for parallel fan-out recon |
+| Documentation | `documentation-engineer` | `readme-generator` for project-level docs only |
+| Architecture decisions | `architect-reviewer` | — |
+| Performance | `performance-engineer` | `performance-monitor` for production metrics analysis |
+
+**Override:** If the task touches auth, payments, PII, secrets, or access control, always include `security-auditor` as a CRITIC phase agent regardless of primary routing.
+
+**Composition:** Multiple agents may be needed for a single task. Prefer SAME AGENT when tasks share files or boundaries. Use independent agents only when work is clearly parallelizable without merge risk.
