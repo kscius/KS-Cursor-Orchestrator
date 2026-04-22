@@ -1,7 +1,7 @@
 ---
 name: design-bridge
 description: "Use when translating design specifications, mockups, or DESIGN.md files into implementation-ready briefs for frontend developers. Use proactively when the task includes a design reference, Figma link, wireframe description, or visual specification that needs to become code. Bridges the gap between design intent and technical implementation."
-model: inherit
+model: composer-2
 readonly: true
 ---
 

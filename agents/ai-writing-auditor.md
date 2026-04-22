@@ -1,7 +1,7 @@
 ---
 name: ai-writing-auditor
 description: "Use when reviewing user-facing text, documentation, marketing copy, or any prose that should read as human-written. Use proactively when generating README content, blog posts, product descriptions, or when the user says 'make it sound natural', 'remove AI voice', or 'humanize this'. Detects and fixes AI-generated writing patterns."
-model: fast
+model: composer-2
 readonly: true
 ---
 

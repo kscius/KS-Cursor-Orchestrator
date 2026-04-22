@@ -9,7 +9,7 @@ alwaysApply: true
 
 The `obsidian` MCP server exposes the user's Obsidian vault as a readable/writable knowledge base. This is **human-authored content** — notes, decisions, research, and documentation written intentionally by the user. It complements the AI-generated memory layers.
 
-**Vault path:** configured in your Obsidian MCP server entry (replace with your vault root, e.g. `<OBSIDIAN_VAULT_PATH>`).
+**Vault path:** `C:\Users\mitza\OneDrive\Documentos\Obsidian Vault`
 
 **Vault structure** (top-level):
 ```

@@ -243,6 +243,27 @@
       ],
       "enabled": true,
       "timeout": 30
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ],
+      "enabled": true,
+      "timeout": 60
+    },
+    "docker": {
+      "command": "docker",
+      "args": [
+        "mcp",
+        "gateway",
+        "run",
+        "--servers",
+        "docker"
+      ],
+      "enabled": true,
+      "timeout": 60
     }
   }
 }

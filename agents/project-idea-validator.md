@@ -1,7 +1,7 @@
 ---
 name: project-idea-validator
 description: "Use when the user wants an idea pressure-tested with honest, evidence-based analysis before investing development time. Use when someone says 'should we build this', 'is this worth it', 'validate this idea', or presents a product concept that needs critical evaluation. Provides market reality checks, competitor analysis, and go/no-go recommendations."
-model: inherit
+model: composer-2
 readonly: true
 ---
 

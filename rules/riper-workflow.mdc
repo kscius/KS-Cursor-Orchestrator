@@ -1,0 +1,203 @@
+---
+description: RIPER workflow enforcer — five structured phases for disciplined AI-assisted development. Opt-in. Activate explicitly or via /riper command.
+globs: []
+alwaysApply: false
+---
+
+# RIPER Workflow
+
+RIPER is an opt-in structured development workflow that enforces five named phases. Activate it by saying "use RIPER", "RIPER mode", or invoking a specific phase like "RIPER: Research".
+
+When RIPER is active, **declare the current phase at the start of every response** with the format:
+
+> **[RIPER: PHASE_NAME]**
+
+---
+
+## The Five Phases
+
+### Phase 1: RESEARCH (Read-only discovery)
+
+**What it is:** Pure information gathering. No code changes, no proposals.
+
+**Allowed actions:**
+- Read files, search codebase, inspect structure
+- Query documentation and context
+- Ask clarifying questions
+- Summarize findings
+
+**Forbidden actions:**
+- Writing or editing code
+- Proposing solutions
+- Making architecture decisions
+
+**Entry criterion:** Task received.
+
+**Exit gate:** You can answer these questions:
+- What does the existing code do?
+- What is the exact problem or request?
+- What are the constraints and dependencies?
+- What are the risks?
+
+**Transition:** Explicitly say "Moving to INNOVATE phase" when exit gate is met.
+
+---
+
+### Phase 2: INNOVATE (Propose without implementing)
+
+**What it is:** Generate and compare solution options. No code written yet.
+
+**Allowed actions:**
+- Propose multiple approaches with trade-offs
+- Evaluate options against constraints from RESEARCH
+- Identify the recommended approach
+- Outline the implementation at a high level
+
+**Forbidden actions:**
+- Writing production code
+- Making unilateral architecture decisions
+- Skipping trade-off comparison
+
+**Entry criterion:** RESEARCH phase complete.
+
+**Exit gate:**
+- At least two approaches compared
+- Recommended approach selected with justification
+- User agrees to proceed with the chosen approach
+
+**Transition:** Explicitly say "Moving to PLAN phase" after user approval.
+
+---
+
+### Phase 3: PLAN (Structured implementation plan)
+
+**What it is:** Produce an execution-ready implementation plan with precise steps.
+
+**Allowed actions:**
+- Write a step-by-step implementation plan
+- List exact files to create/modify
+- Define acceptance criteria
+- Identify validation steps
+- Note risks and rollback conditions
+
+**Forbidden actions:**
+- Writing production code
+- Starting implementation before plan is approved
+- Vague plans ("make it better")
+
+**Entry criterion:** INNOVATE phase approved by user.
+
+**Exit gate:**
+- Implementation steps are specific and sequenced
+- Files to touch are named
+- Acceptance criteria are testable
+- Validation plan is defined
+- User approves the plan
+
+**Plan format:**
+```
+## Implementation Plan
+
+**Objective:** <what we're building>
+**Approach:** <chosen approach from INNOVATE>
+
+### Steps
+1. <precise step with file name>
+2. <precise step with file name>
+...
+
+### Files to modify
+- `path/to/file.ts` — <what changes>
+
+### Acceptance criteria
+- [ ] <testable outcome>
+
+### Validation
+- <how to verify it works>
+
+### Risks / Rollback
+- <risk and mitigation>
+```
+
+**Transition:** Explicitly say "Moving to EXECUTE phase" after plan approval.
+
+---
+
+### Phase 4: EXECUTE (Implement exactly as planned)
+
+**What it is:** Implement the approved plan. Deviations require returning to PLAN.
+
+**Allowed actions:**
+- Write and edit code per the plan
+- Run tests and validation commands
+- Make minor adjustments within plan scope
+
+**Forbidden actions:**
+- Deviating from the approved plan without flagging
+- Expanding scope during implementation
+- Skipping test runs
+
+**Entry criterion:** PLAN phase approved by user.
+
+**Deviation rule:** If you discover the plan needs material changes, **stop**, explain why, and return to PLAN phase.
+
+**Exit gate:**
+- All plan steps completed
+- Tests pass
+- Lint/typecheck clean
+- Acceptance criteria verified
+
+**Transition:** Explicitly say "Moving to REVIEW phase" when implementation is complete.
+
+---
+
+### Phase 5: REVIEW (Validate and close)
+
+**What it is:** Systematic validation and closure. Catch what EXECUTE missed.
+
+**Allowed actions:**
+- Review implementation against acceptance criteria
+- Run final validation suite
+- Document decisions made
+- Identify follow-ups
+
+**Checklist:**
+- [ ] All acceptance criteria met
+- [ ] Tests pass (show output)
+- [ ] No unintended side effects
+- [ ] No security regressions
+- [ ] Docs updated if needed
+- [ ] Known limitations stated
+
+**Output:**
+```
+## Review Summary
+
+**Acceptance criteria:**
+- [x] <met criterion>
+- [ ] <unmet criterion — note why>
+
+**Validation run:**
+<test/lint output>
+
+**Known limitations:**
+<any caveats>
+
+**Follow-up tasks:**
+<any items deferred>
+```
+
+**Exit gate:** All acceptance criteria addressed (met or explicitly deferred with reason).
+
+---
+
+## Phase transition rules
+
+- Never skip phases unless the user explicitly grants permission.
+- If a phase reveals new information that invalidates a previous phase, return to the appropriate earlier phase.
+- At any point the user can say "skip to EXECUTE" or "go back to PLAN" to override phase sequence.
+- In EXECUTE and beyond, you may NOT expand scope without returning to PLAN.
+
+## Deactivation
+
+Say "exit RIPER" or "RIPER off" to return to normal mode.

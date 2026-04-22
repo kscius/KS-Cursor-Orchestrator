@@ -1,0 +1,115 @@
+---
+description: Swift and iOS/macOS development conventions for SwiftUI, async/await, state management, Xcode project structure, and SPM. Mirrors overlay-flutter-dart.mdc in format.
+globs:
+  - "**/*.swift"
+alwaysApply: false
+---
+
+# Swift / iOS / macOS Overlay
+
+Apply this rule only to Swift code and iOS/macOS projects.
+
+## SwiftUI declarative model
+
+- Prefer `View` composition over inheritance
+- Keep `body` implementations shallow — extract subviews when `body` grows beyond ~20 lines
+- Name view structs in PascalCase, preview providers as `<ViewName>_Previews`
+- Use `@ViewBuilder` for complex conditional view construction
+- Prefer `Group`, `ForEach`, and `LazyVStack`/`LazyHStack` for dynamic content
+- Keep views purely declarative — no imperative logic in `body`
+
+## State management discipline
+
+Use the appropriate property wrapper for each role:
+
+| Wrapper | Use when |
+|---------|---------|
+| `@State` | Local mutable state owned by this view |
+| `@Binding` | Mutable state passed from a parent |
+| `@StateObject` | ObservableObject owned by this view (created here) |
+| `@ObservedObject` | ObservableObject passed from a parent |
+| `@EnvironmentObject` | Shared object injected through the environment |
+| `@Environment` | Reading environment values (color scheme, locale, etc.) |
+
+- Do not reach for `@EnvironmentObject` for everything — prefer explicit dependency injection via `@Binding` or init parameters for tightly scoped state
+- In Swift 5.9+ / iOS 17+, prefer `@Observable` (Observation framework) over `ObservableObject` for new code
+
+## Async/await patterns
+
+- Prefer `async/await` over completion handlers for new code
+- Launch tasks from view lifecycle with `.task { }` modifier (auto-cancels on disappear)
+- Use `Task { }` for imperative task launches; cancel on `onDisappear` when needed
+- Prefer `AsyncSequence` / `AsyncStream` over Combine `Publisher` for new async event streams
+- Do not block the main actor with synchronous I/O
+
+Combine usage:
+- Retain Combine where the project already uses it (do not rip out existing `.sink`/`.assign` chains)
+- Prefer `async/await` for new network and async work
+- Use `.receive(on: DispatchQueue.main)` before UI-bound sink operations
+
+## Safety rules
+
+- **No force unwrap** (`!`): use `guard let`, `if let`, `??`, or `try?` instead
+  - Exception: IBOutlets in UIKit code where the contract guarantees non-nil at use time (document why)
+- **No force try** (`try!`) in production paths
+- **No force cast** (`as!`) without explicit justification
+- Prefer `Result<Success, Failure>` over throwing functions in closures and async boundaries
+
+## Xcode project structure
+
+Follow the project's established structure. Common conventions:
+```
+MyApp/
+  App/            — App entry point, AppDelegate/SceneDelegate
+  Features/       — Feature modules (one folder per feature)
+    FeatureName/
+      Views/
+      ViewModels/
+      Models/
+  Core/           — Shared utilities, extensions, services
+  Resources/      — Assets, Localizable.strings, Info.plist
+```
+
+- Group files by feature, not by type (prefer `Feature/Views/` over `Views/Feature/`)
+- Use Swift packages (SPM) for internal modules when the project does so
+
+## Swift Package Manager (SPM)
+
+- Declare dependencies in `Package.swift` — do not mix SPM and CocoaPods without strong reason
+- Pin to exact versions or minor ranges for dependencies: `from: "1.2.3"` or `.upToNextMinor(from: "1.2.0")`
+- Prefer SPM over CocoaPods or Carthage for new dependencies
+
+## Naming conventions
+
+- Types and protocols: `PascalCase`
+- Variables, functions, cases: `camelCase`
+- Constants: `camelCase` (Swift convention) — avoid `SCREAMING_SNAKE_CASE`
+- Files: match the primary type defined in the file (one primary type per file preferred)
+- Protocol names: noun (`Identifiable`) or adjective (`Equatable`), not verb unless a delegate (`DataSourceDelegate`)
+
+## Performance awareness
+
+- Avoid heavy computation in `body` — extract to `@State`/`@StateObject` or use `.onChange`
+- Prefer `LazyVStack`/`LazyHStack`/`LazyVGrid` for long scrollable lists
+- Minimize `@EnvironmentObject` reads in frequently re-rendered views
+- Profile with Instruments (Time Profiler, SwiftUI instrument) before optimizing
+
+## Preview providers
+
+- Provide at least one preview per non-trivial view
+- Use `PreviewProvider` (< iOS 17) or `#Preview` macro (iOS 17+)
+- Supply representative mock data — avoid empty states as the only preview
+- Use `previewLayout(.sizeThatFits)` for component previews
+
+## Testing
+
+- Unit test ViewModels and business logic (not SwiftUI views directly)
+- Use `XCTest` for unit tests
+- Prefer `XCUITest` for critical UI flows, not as a substitute for unit tests
+- Use Swift Testing (`@Test`, `#expect`) for new test code in Swift 5.9+
+
+## Error handling
+
+- Propagate errors with `throws` rather than silently returning `nil`
+- Use typed errors (`enum AppError: Error`) for domain errors exposed to callers
+- Map networking errors at the boundary — do not leak `URLError` into ViewModels

@@ -42,6 +42,11 @@
     ],
     "beforeShellExecution": [
       {
+        "command": "node ./hooks/auto-approve-safe.js",
+        "timeout": 5,
+        "failClosed": false
+      },
+      {
         "command": "node ./hooks/block-dangerous-shell.js",
         "timeout": 10
       },
@@ -103,6 +108,12 @@
         "command": "node ./hooks/auto-format.js",
         "timeout": 15,
         "failClosed": false
+      },
+      {
+        "command": "node ./hooks/typescript-quality-cache.js",
+        "timeout": 15,
+        "failClosed": false,
+        "matcher": "\\.(ts|tsx)$"
       }
     ],
     "afterTabFileEdit": [
@@ -117,6 +128,11 @@
         "command": "node ./hooks/validate-mcp.js",
         "timeout": 10,
         "failClosed": false
+      },
+      {
+        "command": "node ./hooks/prompt-injection-scanner.js",
+        "timeout": 5,
+        "failClosed": false
       }
     ],
     "afterMCPExecution": [
@@ -127,6 +143,12 @@
       }
     ],
     "preToolUse": [
+      {
+        "command": "node ./hooks/tdd-guard.js",
+        "timeout": 8,
+        "failClosed": false,
+        "matcher": "Write"
+      },
       {
         "command": "node ./hooks/audit-log.js",
         "timeout": 5,
