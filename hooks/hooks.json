@@ -2,6 +2,13 @@
   "$schema": "https://unpkg.com/cursor-hooks@latest/schema/hooks.schema.json",
   "version": 1,
   "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "node ./hooks/prompt-gate.js",
+        "timeout": 5,
+        "failClosed": false
+      }
+    ],
     "sessionStart": [
       {
         "command": "node ./hooks/session-bootstrap.js",
@@ -18,6 +25,11 @@
       {
         "command": "node ./hooks/after-agent-response.js",
         "timeout": 8,
+        "failClosed": false
+      },
+      {
+        "command": "node ./hooks/context-window-monitor.js",
+        "timeout": 5,
         "failClosed": false
       }
     ],
@@ -53,6 +65,12 @@
       {
         "command": "node ./hooks/protect-branch.js",
         "matcher": "git"
+      },
+      {
+        "command": "node ./hooks/commit-message-validator.js",
+        "timeout": 5,
+        "failClosed": false,
+        "matcher": "git commit"
       }
     ],
     "afterShellExecution": [
@@ -154,6 +172,13 @@
         "timeout": 5,
         "failClosed": false,
         "matcher": "Shell|Write|Delete"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "node ./hooks/post-tool-context.js",
+        "timeout": 5,
+        "failClosed": false
       }
     ],
     "postToolUseFailure": [

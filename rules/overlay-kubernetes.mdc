@@ -1,0 +1,47 @@
+---
+description: Kubernetes conventions for manifests, Helm charts, and cluster operations
+globs:
+  - "**/*.yaml"
+  - "**/*.yml"
+  - "**/k8s/**"
+  - "**/kubernetes/**"
+  - "**/helm/**"
+  - "**/charts/**"
+  - "**/kustomization.yaml"
+alwaysApply: false
+---
+
+# Kubernetes Overlay
+
+Apply when the touched area involves Kubernetes manifests, Helm charts, or cluster configuration. Only activate when files contain Kubernetes API objects (apiVersion, kind, metadata pattern).
+
+## Manifest conventions
+
+- Set resource requests and limits for all containers
+- Use namespaces for logical isolation
+- Define liveness and readiness probes for all long-running containers
+- Use `PodDisruptionBudget` for production workloads
+- Prefer `Deployment` over bare `Pod` definitions
+- Set `imagePullPolicy: IfNotPresent` or `Always` explicitly
+
+## Security
+
+- Do not run containers as root — set `runAsNonRoot: true` and `readOnlyRootFilesystem: true`
+- Use `NetworkPolicy` to restrict pod-to-pod traffic
+- Do not store secrets in manifests — use `Secret` resources, sealed secrets, or external secret operators
+- Set `securityContext` with least privilege (drop all capabilities, add only what is needed)
+- Use RBAC with least privilege for ServiceAccounts
+
+## Helm conventions
+
+- Pin chart versions in `Chart.yaml` dependencies
+- Use `values.yaml` for environment-specific configuration
+- Template helpers should be minimal and readable
+- Document required values in `values.yaml` with comments
+
+## Operations
+
+- Use `kubectl diff` before `kubectl apply` for change preview
+- Prefer declarative (`kubectl apply`) over imperative (`kubectl create/edit`)
+- Use labels and annotations consistently for filtering and tooling
+- Set pod anti-affinity for high-availability deployments

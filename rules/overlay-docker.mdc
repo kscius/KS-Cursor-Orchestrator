@@ -1,0 +1,46 @@
+---
+description: Docker and container conventions for Dockerfile, docker-compose, and container networking
+globs:
+  - "**/Dockerfile*"
+  - "**/docker-compose*.{yml,yaml}"
+  - "**/.dockerignore"
+  - "**/compose*.{yml,yaml}"
+alwaysApply: false
+---
+
+# Docker Overlay
+
+Apply when the touched area involves Dockerfiles, Compose files, or container configuration.
+
+## Dockerfile conventions
+
+- Use multi-stage builds to minimize final image size
+- Pin base image tags to specific versions (not `latest`)
+- Order instructions by change frequency — static layers first, volatile layers last
+- Combine RUN commands with `&&` to reduce layers
+- Use `.dockerignore` to exclude unnecessary files from build context
+- Run as non-root user in production images (`USER` instruction)
+- Prefer `COPY` over `ADD` unless extracting archives
+- Set `HEALTHCHECK` for services that accept connections
+
+## Compose conventions
+
+- Pin image versions in compose files
+- Use named volumes for persistent data
+- Define explicit networks for service isolation
+- Use `depends_on` with `condition: service_healthy` when health checks are available
+- Keep secrets and credentials in environment variables or Docker secrets, not in compose files
+- Use profiles for optional services (dev-only tools, debug containers)
+
+## Security
+
+- Do not store secrets in image layers (use build secrets or runtime env)
+- Scan images for vulnerabilities before deployment
+- Prefer distroless or Alpine-based images for smaller attack surface
+- Do not run containers with `--privileged` unless explicitly required and justified
+
+## Build context
+
+- Keep build context small — use `.dockerignore` aggressively
+- Do not copy lockfiles or node_modules into build context unnecessarily
+- Verify the final image size is reasonable for the workload

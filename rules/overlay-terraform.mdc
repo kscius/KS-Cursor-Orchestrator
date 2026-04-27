@@ -1,0 +1,53 @@
+---
+description: Terraform and IaC conventions for state management, module patterns, and plan-before-apply discipline
+globs:
+  - "**/*.tf"
+  - "**/*.tfvars"
+  - "**/terraform/**"
+  - "**/.terraform*"
+alwaysApply: false
+---
+
+# Terraform Overlay
+
+Apply when the touched area involves Terraform configuration files.
+
+## State management
+
+- Use remote state with locking (S3+DynamoDB, GCS, Terraform Cloud)
+- Never commit `.terraform/` or state files to version control
+- Use workspaces or separate state files for environment isolation (dev/staging/prod)
+
+## Module patterns
+
+- Prefer reusable modules for repeated infrastructure patterns
+- Pin module versions with explicit version constraints
+- Use `variable` validation blocks for input constraints
+- Expose meaningful `output` values for module consumers
+- Document module purpose, inputs, and outputs
+
+## Plan-before-apply discipline
+
+- Always run `terraform plan` before `terraform apply`
+- Review plan output for unexpected changes (drift, unintended destroys)
+- Use `-target` sparingly and only for emergency remediation
+- Prefer `terraform plan -out=plan.tfplan` + `terraform apply plan.tfplan` for deterministic applies
+
+## Resource conventions
+
+- Use descriptive resource names that reflect purpose
+- Tag resources consistently (project, environment, team, cost center)
+- Prefer `for_each` over `count` for readable, stable resource addressing
+- Use `lifecycle` blocks intentionally (prevent_destroy, ignore_changes)
+
+## Security
+
+- Do not hardcode secrets in `.tf` or `.tfvars` files
+- Use `sensitive = true` for secret variables and outputs
+- Prefer data sources over hardcoded IDs for cross-resource references
+- Review IAM policies for least privilege before applying
+
+## Validation
+
+- Run `terraform validate` and `terraform fmt` before committing
+- Use `tflint` or `checkov` for static analysis when available
